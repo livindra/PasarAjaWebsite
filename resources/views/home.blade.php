@@ -14,7 +14,8 @@
         <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
         <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
         <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="boot/css/styles.css" rel="stylesheet" />
+        <link href="{{asset ('boot/css/styles.css')}}" rel="stylesheet" />
+        <link href="{{asset ('boot/css/landing.css')}}" rel="stylesheet" />
     </head>
     <body id="page-top">
         <!-- Navigation-->
@@ -26,33 +27,65 @@
                     <i class="fas fa-bars ms-1"></i>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
-                    <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
-                        <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#portfolio">Portfolio</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#team">Team</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                    <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0" id="nav-text">
+                        <li class="nav-item"><a id="nav-text1" href="#services">Home</a></li>
+                        <li class="nav-item"><a id="nav-text2" href="#portfolio">Informasi</a></li>
+                        <li class="nav-item"><a id="nav-text3" href="#about">Promo</a></li>
+                        <li class="nav-item"><a id="nav-text4" href="#team">Event</a></li>
+                        <li class="nav-item"><a id="nav-text5" href="#contact">Contact</a></li>
+                        <button type="button" class="btn btn-outline-success mb-3" id="sign-in">Sign In</button>
                     </ul>
                 </div>
             </div>
         </nav>
         <!-- Masthead-->
         <header class="masthead">
-            <div class="container">
-                <div class="masthead-subheading">Welcome To Our Studio!</div>
-                <div class="masthead-heading text-uppercase">It's Nice To Meet You</div>
-                <a class="btn btn-primary btn-xl text-uppercase" href="#services">Tell Me More</a>
+            <div class="container d-flex justify-content-end">
+                <div class="row">
+                    <div class="col-xxl-12">
+                        <div class="card d-flex"  id="body-head">
+                        <div class="card-body" id="text-title">
+                            <p class="card-text mb-3">Hello!!!</p>
+                            <h5 class="card-title">Welcome To PasarAja</h5>
+                            <p class="card-text">Nikmati kemudahan berbelanja di pasar melalui aplikasi </p>
+                            <p class="card-text">PasarAja,selalu siap membantu memenuhi kebutuhanmu</p>
+                            <a href="#" class="btn mt-5" id="btn-detail">Read More</a>
+                        </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
+        <div class="d-flex mt-5">
+            <img src="{{asset('img/akses.png')}}" alt="" id="row-img">
+            <img src="{{asset('img/fast.png')}}" alt="" id="row-img">
+            <img src="{{asset('img/fresh.png')}}" alt="" id="row-img">
+        </div>
+
         <!-- Services-->
         <section class="page-section" id="services">
             <div class="container">
                 <div class="text-center">
-                    <h2 class="section-heading text-uppercase">Services</h2>
-                    <h3 class="section-subheading text-muted">Lorem ipsum dolor sit amet consectetur.</h3>
+                    <h2 class="section-heading text-uppercase">Informasi Terbaru</h2>
+                    <h3 class="section-subheading text-muted">Berikut adalah beberapa informasi terbaru seputar pasar wage</h3>
                 </div>
                 <div class="row text-center">
-                    <div class="col-md-4">
+                <div class="d-flex mt-5" style="gap:15px">
+                    <div class="image-container">
+                        <img src="{{asset('img/pasar1.png')}}" alt="" class="row-img">
+                        <button class="btn">INFORMASI</button>
+                    </div>
+                    <div class="image-container">
+                        <img src="{{asset('img/pasar2.png')}}" alt="" class="row-img">
+                        <button class="btn">INFORMASI</button>
+                    </div>
+                    <div class="image-container">
+                        <img src="{{asset('img/pasar3.png')}}" alt="" class="row-img">
+                        <button class="btn">INFORMASI</button>
+                    </div>
+                </div>
+
+                    <!-- <div class="col-md-4">
                         <span class="fa-stack fa-4x">
                             <i class="fas fa-circle fa-stack-2x text-primary"></i>
                             <i class="fas fa-shopping-cart fa-stack-1x fa-inverse"></i>
@@ -75,7 +108,7 @@
                         </span>
                         <h4 class="my-3">Web Security</h4>
                         <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.</p>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </section>
@@ -94,7 +127,7 @@
                                 <div class="portfolio-hover">
                                     <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
                                 </div>
-                                <img class="img-fluid" src="assets/img/portfolio/1.jpg" alt="..." />
+                                <img class="img-fluid" src="{{ asset ('img/landing-img.png')}}" alt="..." />
                             </a>
                             <div class="portfolio-caption">
                                 <div class="portfolio-caption-heading">Threads</div>
@@ -426,7 +459,7 @@
         <div class="portfolio-modal modal fade" id="portfolioModal2" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="close-modal" data-bs-dismiss="modal"><img src="assets/img/close-icon.svg" alt="Close modal" /></div>
+                    <div class="close-modal" data-bs-dismiss="modal"><img src="{{asset ('img/close-icon.svg') }}" alt="Close modal" /></div>
                     <div class="container">
                         <div class="row justify-content-center">
                             <div class="col-lg-8">
