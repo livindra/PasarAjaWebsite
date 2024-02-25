@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('shops', function (Blueprint $table) {
             $table->id();
-            $table->string('phone_number', 15)->unique();
-            $table->string('email', 100)->nullable();
-            $table->string('full_name', 50);
-            $table->text('password');
-            $table->string('pin', 6);
-            $table->enum('level', ['Pengelola', 'Penjual', 'Pembeli']);
-            $table->tinyInteger('is_verified')->default(0);
+            $table->unsignedInteger('id_user')->unique();
+            $table->unsignedInteger('id_cp_shop');
+            $table->string('shop_name', 50);
+            $table->text('description')->nullable();
+            $table->text('benchmark')->nullable();
+            $table->text('operational')->nullable();
             $table->text('photo')->nullable();
             $table->timestamps();
         });
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('shops');
     }
 };
