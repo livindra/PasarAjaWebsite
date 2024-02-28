@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email', 100)->nullable();
             $table->string('full_name', 50);
             $table->text('password');
-            $table->string('pin', 6);
+            $table->text('pin');
             $table->enum('level', ['Pengelola', 'Penjual', 'Pembeli']);
             $table->tinyInteger('is_verified')->default(0);
             $table->text('photo')->nullable();
