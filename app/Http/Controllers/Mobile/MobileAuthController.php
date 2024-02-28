@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 class MobileAuthController extends Controller
 {
-    public function first(Request $request)
+    public function first()
     {
         return response()->json(['status' => 'success', 'message' => 'response pertama saya'], 200);
     }
@@ -66,46 +66,71 @@ class MobileAuthController extends Controller
         // cek phone registered
         $isExistPhone = json_decode($this->isExistPhone($request)->getContent(), true);
 
-        if($isExistPhone['status'] === 'success'){
-            return response()->json(['status'=>'error', 'message'=>'Nomor Hp sudah terdaftar'], 200);
-        }else{
+        if ($isExistPhone['status'] === 'success') {
+            return response()->json(['status' => 'error', 'message' => 'Nomor Hp sudah terdaftar'], 200);
+        } else {
             $result = $this->createUser($request, $user);
-            if($request['status'] == 'error'){
-                return response()->json(['status'=>'error', 'message'=>$request['message']], 200);
-            }else{
+            if ($request['status'] == 'error') {
+                return response()->json(['status' => 'error', 'message' => $request['message']], 200);
+            } else {
                 return $result;
             }
         }
     }
 
-    public function signinEmail(Request $request){
+    public function signinEmail(Request $request)
+    {
         $email = $request->input('email');
         $password = $request->input('password');
 
         // cek email 
         $isExist = json_decode($this->isExistEmail($request)->getContent(), true);
-        if($isExist['status'] !== 'success'){
-            return response()->json(['status'=>'error', 'message'=>'Email tidak terdaftar'], 200);
+        if ($isExist['status'] !== 'success') {
+            return response()->json(['status' => 'error', 'message' => 'Email tidak terdaftar'], 200);
         }
 
         // cek password
         $dbPass = User::select("password")->where('email', $email)->limit(1)->get();
-        if(!password_verify($password, $dbPass[0]->password)){
-            return response()->json(['status'=>'error', 'message'=>'Password tidak cocok'], 200);
+        if (!password_verify($password, $dbPass[0]->password)) {
+            return response()->json(['status' => 'error', 'message' => 'Password tidak cocok'], 200);
         }
 
         // login success
         $userData = User::select("*")->where('email', $email)->limit(1)->get();
-        return response()->json(['status'=>'success', 'message'=>'Login Berhasil', 'data'=>$userData[0]], 200);
+        return response()->json(['status' => 'success', 'message' => 'Login Berhasil', 'data' => $userData[0]], 200);
     }
 
-    public function signinPhone(Request $request){
+    public function signinPhone(Request $request)
+    {
         $phone = $request->input('phone_number');
         $pin = $request->input('pin');
 
         // cek nomor hp
         $isExistPhone = json_decode($this->isExistPhone($request)->getContent(), true);
-        print($isExistPhone);
+        if ($isExistPhone['status'] !== 'success') {
+            return response()->json(['status' => 'error', 'message' => 'Nomor Hp tidak terdaftar'], 200);
+        }
+
+        // cek pin
+        $dbPin = User::select("pin")->where('phone_number', $phone)->limit(1)->get();
+        if (!password_verify($pin, $dbPin[0]->pin)) {
+            return response()->json(['status' => 'error', 'message' => 'PIN tidak cocok'], 200);
+        }
+
+        $userData = User::select('*')->where('phone_number', $phone)->limit(1)->get();
+        return response()->json(['status' => 'success', 'message' => 'Login Berhasil', 'data' => $userData[0]], 200);
     }
 
+    public function signinGoogle(Request $request)
+    {
+        $email = $request->input('email');
+
+        $isExistEmail = json_decode($this->isExistEmail($request)->getContent(), true);
+        if ($isExistEmail['status'] !== 'success') {
+            return response()->json(['status'=>'error', 'message'=>'Email tersebut belum terdaftar'], 200);
+        }else{
+            $userData = User::select("*")->where('email', $email)->limit(1)->get();
+            return response()->json(['status'=>'success', 'message'=>'Login Berhasil', 'data'=>$userData[0]], 200);
+        }
+    }
 }

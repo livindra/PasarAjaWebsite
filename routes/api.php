@@ -24,12 +24,15 @@ Route::group(['prefix'=>'/m'], function(){
         Route::get('/first', [MobileAuthController::class, 'first']);
     });
 
+    // user route
     Route::group(['prefix'=>'auth'], function(){
         Route::get('/cekemail', [MobileAuthController::class, 'isExistEmail']);
         Route::get('/cekphone', [MobileAuthController::class, 'isExistPhone']);
         Route::post('/signup', [MobileAuthController::class, 'register']);
         Route::group(['prefix'=>'signin'], function(){
             Route::post('/email', [MobileAuthController::class, 'signinEmail']);
+            Route::post('/phone', [MobileAuthController::class, 'signinPhone']);
+            Route::post('/google', [MobileAuthController::class, 'signinGoogle']);
         });
     });
 });
