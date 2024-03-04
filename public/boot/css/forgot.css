@@ -1,0 +1,51 @@
+.bg-image-vertical {
+    position: relative;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: auto 100%;
+    }
+    
+    @media (min-width: 1025px) {
+    .h-custom-2 {
+    height: 100%;
+    }
+    }
+
+    .text-judul {
+        font-size: 50px;
+        color: #0D4A31;
+    }
+
+    .text-1{
+        font-size: 25px;
+        color: #333333;
+    }
+
+    #btn-detail{
+        border-radius: 50px;
+    width: 370px;
+    height: 50px;
+    background-color: #0D4A31;
+    border: 1px solid #0D4A31;
+    }
+
+    #btn-detail:hover{
+        background-color: rgb(73, 172, 73);
+        color: #FFFFFF;
+    }
+
+    .text-detail{
+        font-size: 15px;
+        color: black;
+    }
+
+    .text-detail:hover{
+        color: rgb(73, 172, 73);
+    }
+
+    #text-log{
+        font-size: 30px;
+    }
+
+    

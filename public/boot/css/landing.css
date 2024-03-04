@@ -127,3 +127,51 @@ text-decoration: underline;
     background-color: #0D4A31;
     color: white;
 }
+
+#img-card{
+    background-color: #E9FEF5;
+}
+
+
+.image-container {
+    position: relative;
+    display: inline-block;
+}
+.label {
+    position: absolute;
+    top: 10px; /* Sesuaikan posisi label secara vertikal */
+    right: 10px; /* Sesuaikan posisi label secara horizontal */
+    background-color: red; /* Warna latar belakang label */
+    color: white;
+    width: 20px; /* Lebar label */
+    height: 20px; /* Tinggi label */
+    border-radius: 50%; /* Agar label menjadi bulat */
+    font-size: 12px; /* Ukuran font teks di dalam label */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1; /* Mengatur label di atas gambar */
+}
+.row-img {
+    max-width: 100%; /* Lebar maksimum gambar */
+    height: auto; /* Menjaga aspek rasio gambar */
+    display: block;
+}
+
+#text-event{
+    margin-bottom: 5px;
+}
+
+.map-container {
+    display: flex;
+    justify-content: center; /* Memusatkan secara horizontal */
+    align-items: center; /* Memusatkan secara vertikal */
+    height: 100vh; /* Menggunakan tinggi 100% dari viewport */
+}
+
+/* Iframe styling */
+.map-container iframe {
+    width: 80%; /* Lebar iframe */
+    height: 80%; /* Tinggi iframe */
+    border: 0;
+}
