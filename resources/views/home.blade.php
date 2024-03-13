@@ -7,6 +7,7 @@
         <meta name="author" content="" />
         <title>Pasar Aja loo kii</title>
         <!-- Favicon-->
+        <link href="./vendor/jqvmap/css/jqvmap.min.css" rel="stylesheet">
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <!-- Font Awesome icons (free version)-->
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
@@ -65,12 +66,12 @@
         <!-- Services-->
         <section class="page-section" id="services">
             <div class="container">
-                <div class="text-center">
+                 <div class="text-center">
                     <h2 class="section-heading text-uppercase">Informasi Terbaru</h2>
                     <h3 class="section-subheading text-muted">Berikut adalah beberapa informasi terbaru seputar pasar wage</h3>
-                </div>
-                <div class="row text-center">
-                <div class="d-flex mt-5" style="gap:15px">
+                 </div>
+                 <div class="row text-center">
+                  <div class="d-flex mt-5" style="gap:15px">
                     <div class="image-container">
                         <img src="{{asset('img/pasar1.png')}}" alt="" class="row-img">
                         <button class="btn">INFORMASI</button>
@@ -83,198 +84,107 @@
                         <img src="{{asset('img/pasar3.png')}}" alt="" class="row-img">
                         <button class="btn">INFORMASI</button>
                     </div>
-                </div>
+                  </div>
 
-                    <!-- <div class="col-md-4">
-                        <span class="fa-stack fa-4x">
-                            <i class="fas fa-circle fa-stack-2x text-primary"></i>
-                            <i class="fas fa-shopping-cart fa-stack-1x fa-inverse"></i>
-                        </span>
-                        <h4 class="my-3">E-Commerce</h4>
-                        <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.</p>
-                    </div>
-                    <div class="col-md-4">
-                        <span class="fa-stack fa-4x">
-                            <i class="fas fa-circle fa-stack-2x text-primary"></i>
-                            <i class="fas fa-laptop fa-stack-1x fa-inverse"></i>
-                        </span>
-                        <h4 class="my-3">Responsive Design</h4>
-                        <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.</p>
-                    </div>
-                    <div class="col-md-4">
-                        <span class="fa-stack fa-4x">
-                            <i class="fas fa-circle fa-stack-2x text-primary"></i>
-                            <i class="fas fa-lock fa-stack-1x fa-inverse"></i>
-                        </span>
-                        <h4 class="my-3">Web Security</h4>
-                        <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.</p>
-                    </div> -->
+                   
                 </div>
             </div>
         </section>
         <!-- Portfolio Grid-->
-        <section class="page-section bg-light" id="portfolio">
-            <div class="container">
-                <div class="text-center">
-                    <h2 class="section-heading text-uppercase">Portfolio</h2>
-                    <h3 class="section-subheading text-muted">Lorem ipsum dolor sit amet consectetur.</h3>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4 col-sm-6 mb-4">
-                        <!-- Portfolio item 1-->
-                        <div class="portfolio-item">
-                            <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal1">
-                                <div class="portfolio-hover">
-                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                                </div>
-                                <img class="img-fluid" src="{{ asset ('img/landing-img.png')}}" alt="..." />
-                            </a>
-                            <div class="portfolio-caption">
-                                <div class="portfolio-caption-heading">Threads</div>
-                                <div class="portfolio-caption-subheading text-muted">Illustration</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-sm-6 mb-4">
-                        <!-- Portfolio item 2-->
-                        <div class="portfolio-item">
-                            <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal2">
-                                <div class="portfolio-hover">
-                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                                </div>
-                                <img class="img-fluid" src="assets/img/portfolio/2.jpg" alt="..." />
-                            </a>
-                            <div class="portfolio-caption">
-                                <div class="portfolio-caption-heading">Explore</div>
-                                <div class="portfolio-caption-subheading text-muted">Graphic Design</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-sm-6 mb-4">
-                        <!-- Portfolio item 3-->
-                        <div class="portfolio-item">
-                            <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal3">
-                                <div class="portfolio-hover">
-                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                                </div>
-                                <img class="img-fluid" src="assets/img/portfolio/3.jpg" alt="..." />
-                            </a>
-                            <div class="portfolio-caption">
-                                <div class="portfolio-caption-heading">Finish</div>
-                                <div class="portfolio-caption-subheading text-muted">Identity</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-sm-6 mb-4 mb-lg-0">
-                        <!-- Portfolio item 4-->
-                        <div class="portfolio-item">
-                            <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal4">
-                                <div class="portfolio-hover">
-                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                                </div>
-                                <img class="img-fluid" src="assets/img/portfolio/4.jpg" alt="..." />
-                            </a>
-                            <div class="portfolio-caption">
-                                <div class="portfolio-caption-heading">Lines</div>
-                                <div class="portfolio-caption-subheading text-muted">Branding</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-sm-6 mb-4 mb-sm-0">
-                        <!-- Portfolio item 5-->
-                        <div class="portfolio-item">
-                            <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal5">
-                                <div class="portfolio-hover">
-                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                                </div>
-                                <img class="img-fluid" src="assets/img/portfolio/5.jpg" alt="..." />
-                            </a>
-                            <div class="portfolio-caption">
-                                <div class="portfolio-caption-heading">Southwest</div>
-                                <div class="portfolio-caption-subheading text-muted">Website Design</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-sm-6">
-                        <!-- Portfolio item 6-->
-                        <div class="portfolio-item">
-                            <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal6">
-                                <div class="portfolio-hover">
-                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                                </div>
-                                <img class="img-fluid" src="assets/img/portfolio/6.jpg" alt="..." />
-                            </a>
-                            <div class="portfolio-caption">
-                                <div class="portfolio-caption-heading">Window</div>
-                                <div class="portfolio-caption-subheading text-muted">Photography</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <!-- <section class="page-section bg-light" id="portfolio"> -->
+        <div class="container d-flex justify-content-start" id="img-card">
+        <div class="row" >
+    <div class="col-xxl-6">
+        <div class="card d-flex" id="body-head">
+            <div class="card-body">
+                <h2 class="card-title">Pasar Wage Nganjuk</h2><br>
+                <p class="card-text">Pasar wage merupakan sebuah pasar yang terletak di Jl.Ahmad Yani, </p>
+                <p class="card-text">Payaman, Kec.Nganjuk, Kabupaten Nganjuk, buka jam 02.00 s/d 15.00 WIB</p>
+                <a href="#" class="btn mt-5" id="btn-detail">Read More</a>
             </div>
-        </section>
+        </div>
+    </div>
+    <div class="col-xxl-6">
+        <div class="image-container " style="width: 300px; height: auto; margin-left: 250px;">
+            <img src="{{asset('img/wage.png')}}" alt="" class="row-img">
+        </div>
+    </div>
+</div>
+
+            </div>
+        <!-- </section> -->
         <!-- About-->
         <section class="page-section" id="about">
             <div class="container">
                 <div class="text-center">
-                    <h2 class="section-heading text-uppercase">About</h2>
-                    <h3 class="section-subheading text-muted">Lorem ipsum dolor sit amet consectetur.</h3>
+                    <h2 class="section-heading text-uppercase">Promo</h2>
+                    <h3 class="section-subheading text-muted">Berikut adalah beberapa promo yang berlaku bulan ini</h3>
                 </div>
-                <ul class="timeline">
-                    <li>
-                        <div class="timeline-image"><img class="rounded-circle img-fluid" src="assets/img/about/1.jpg" alt="..." /></div>
-                        <div class="timeline-panel">
-                            <div class="timeline-heading">
-                                <h4>2009-2011</h4>
-                                <h4 class="subheading">Our Humble Beginnings</h4>
-                            </div>
-                            <div class="timeline-body"><p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt ut voluptatum eius sapiente, totam reiciendis temporibus qui quibusdam, recusandae sit vero unde, sed, incidunt et ea quo dolore laudantium consectetur!</p></div>
-                        </div>
-                    </li>
-                    <li class="timeline-inverted">
-                        <div class="timeline-image"><img class="rounded-circle img-fluid" src="assets/img/about/2.jpg" alt="..." /></div>
-                        <div class="timeline-panel">
-                            <div class="timeline-heading">
-                                <h4>March 2011</h4>
-                                <h4 class="subheading">An Agency is Born</h4>
-                            </div>
-                            <div class="timeline-body"><p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt ut voluptatum eius sapiente, totam reiciendis temporibus qui quibusdam, recusandae sit vero unde, sed, incidunt et ea quo dolore laudantium consectetur!</p></div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="timeline-image"><img class="rounded-circle img-fluid" src="assets/img/about/3.jpg" alt="..." /></div>
-                        <div class="timeline-panel">
-                            <div class="timeline-heading">
-                                <h4>December 2015</h4>
-                                <h4 class="subheading">Transition to Full Service</h4>
-                            </div>
-                            <div class="timeline-body"><p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt ut voluptatum eius sapiente, totam reiciendis temporibus qui quibusdam, recusandae sit vero unde, sed, incidunt et ea quo dolore laudantium consectetur!</p></div>
-                        </div>
-                    </li>
-                    <li class="timeline-inverted">
-                        <div class="timeline-image"><img class="rounded-circle img-fluid" src="assets/img/about/4.jpg" alt="..." /></div>
-                        <div class="timeline-panel">
-                            <div class="timeline-heading">
-                                <h4>July 2020</h4>
-                                <h4 class="subheading">Phase Two Expansion</h4>
-                            </div>
-                            <div class="timeline-body"><p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt ut voluptatum eius sapiente, totam reiciendis temporibus qui quibusdam, recusandae sit vero unde, sed, incidunt et ea quo dolore laudantium consectetur!</p></div>
-                        </div>
-                    </li>
-                    <li class="timeline-inverted">
-                        <div class="timeline-image">
-                            <h4>
-                                Be Part
-                                <br />
-                                Of Our
-                                <br />
-                                Story!
-                            </h4>
-                        </div>
-                    </li>
-                </ul>
+                <div class="row text-center">
+                  <div class="d-flex mt-5" style="gap:15px">
+                    <div class="image-container">
+                        <img src="{{asset('img/promo2.png')}}" alt="" class="row-img">
+                        <a href="#" class="btn mb-5" id="btn-detail">Read More</a>
+                        <label class="text">Hari Valentine</label>
+                    </div>
+                    <div class="image-container">
+                        <img src="{{asset('img/promo1.png')}}" alt="" class="row-img">
+                        <a href="#" class="btn mb-5" id="btn-detail">Read More</a>
+                        <label class="text">Hari Valentine</label>
+                    </div>
+                    <div class="image-container">
+                        <img src="{{asset('img/promo2.png')}}" alt="" class="row-img">
+                        <a href="#" class="btn mb-5" id="btn-detail">Read More </a>
+                        <label class="text">Hari Valentine</label>
+                    </div>
+                  </div>
+                
             </div>
         </section>
+
+        <section class="page-section" id="about">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-heading text-uppercase">Event</h2>
+                    <h3 class="section-subheading text-muted">Berikut adalah beberapa acara yang diselenggarakan</h3>
+                </div>
+                <div class="row text-center">
+        <div class="d-flex mt-5" style="gap:15px">
+            <div class="image-container">
+                <img src="{{asset('img/event1.png')}}" alt="" class="row-img">
+                <div class="label">1</div>
+                <div class="text-center">
+                    <h5 class="">Jalan Sehat</h4>
+                    <p class="text" id="text-event">Pada hari minggu akan diadakan acara</p>
+                    <p class="text" id="text-event">jalan sehat dalam rangka menyambut</p>
+                    <p class="text" id="text-event">bapak bupati yang baru</p>
+                </div>
+            </div>
+            <div class="image-container">
+                <img src="{{asset('img/event2.png')}}" alt="" class="row-img">
+                <div class="label">2</div>
+                <div class="text-center">
+                    <h5 class="">Jumat Berkah</h4>
+                    <p class="text" id="text-event">Setiap hari jumat akan diadakan bagi-</p>
+                    <p class="text" id="text-event">bagi nasi secara gratis bagi yang</p>
+                    <p class="text" id="text-event">membutuhkan</p>
+                </div>
+            </div>
+            <div class="image-container">
+                <img src="{{asset('img/event1.png')}}" alt="" class="row-img">
+                <div class="label">3</div>
+                <div class="text-center">
+                    <h5 class="">Guyon Waton</h4>
+                    <p class="text" id="text-event">Untuk merayakan tahun baru 2024 di</p>
+                    <p class="text" id="text-event">pasar wage akan mengundang bintang</p>
+                    <p class="text" id="text-event">tamu Guyon Waton</p>
+                </div>
+            </div>
+        </div>
+    </div>
+        </section>
+
+        
         <!-- Team-->
         <section class="page-section bg-light" id="team">
             <div class="container">
@@ -283,7 +193,18 @@
                     <h3 class="section-subheading text-muted">Lorem ipsum dolor sit amet consectetur.</h3>
                 </div>
                 <div class="row">
-                    <div class="col-lg-4">
+                <div class="card-body">
+                <div class="map-container">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d253096.35950745232!2d111.78245695484192!3d-7.615110864478897!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e784be1466228d1%3A0x3027a76e352bdc0!2sKabupaten%20Nganjuk%2C%20Jawa%20Timur!5e0!3m2!1sid!2sid!4v1699187134161!5m2!1sid!2sid" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+                            
+                            
+                            </div>
+                    <!-- <div class="col-lg-4">
                         <div class="team-member">
                             <img class="mx-auto rounded-circle" src="assets/img/team/1.jpg" alt="..." />
                             <h4>Parveen Anand</h4>
@@ -312,7 +233,7 @@
                             <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Larry Parker Facebook Profile"><i class="fab fa-facebook-f"></i></a>
                             <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Larry Parker LinkedIn Profile"><i class="fab fa-linkedin-in"></i></a>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="row">
                     <div class="col-lg-8 mx-auto text-center"><p class="large text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eaque, laboriosam veritatis, quos non quis ad perspiciatis, totam corporis ea, alias ut unde.</p></div>
@@ -639,5 +560,13 @@
         <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
         <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
         <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+            <!-- Vectormap -->
+    <script src="./vendor/raphael/raphael.min.js"></script>
+    <script src="./vendor/morris/morris.min.js"></script>
+
+     <!-- Counter Up -->
+     <script src="./vendor/jqvmap/js/jquery.vmap.min.js"></script>
+    <script src="./vendor/jqvmap/js/jquery.vmap.usa.js"></script>
+    <script src="./vendor/jquery.counterup/jquery.counterup.min.js"></script>
     </body>
 </html>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LayoutsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,3 +22,25 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('home');
 });
+
+Route::get('/login', function () {
+    return view('login');
+});
+
+Route::get('/forgot', function () {
+    return view('forgot');
+});
+
+Route::get('/verifikasi', function () {
+    return view('verifikasi');
+});
+
+Route::get('/ganti', function () {
+    return view('ganti');
+});
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+});
+
+Route::get('/layouts', [LayoutsController::class, 'index']);
