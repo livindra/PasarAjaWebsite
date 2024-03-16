@@ -20,6 +20,7 @@ return new class extends Migration
             $table->date('end_date');
             $table->time('start_hour');
             $table->time('end_hour');
+            $table->text('photo');
             $table->timestamps();
             $table->foreign('id_user')->references('id_user')
                 ->on('0users')->onDelete('no action');
