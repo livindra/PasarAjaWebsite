@@ -38,8 +38,11 @@ Route::group(['prefix'=>'/m'], function(){
             Route::post('/phone', [MobileAuthController::class, 'signinPhone']);
             Route::post('/google', [MobileAuthController::class, 'signinGoogle']);
         });
-        Route::post('/updatepw', [MobileAuthController::class, 'changePassword']);
-        Route::post('/updatepin', [MobileAuthController::class, 'changePin']);
+        Route::group(['prefix'=>'update'], function(){
+            Route::post('/pw', [MobileAuthController::class, 'changePassword']);
+            Route::post('/pin', [MobileAuthController::class, 'changePin']);
+        });
+        Route::delete('/logout', [MobileAuthController::class, 'logout']);
     });
 
     // messenger
