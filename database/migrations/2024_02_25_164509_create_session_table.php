@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('0session', function (Blueprint $table) {
             $table->id('id_session');
-            $table->unsignedBigInteger('id_user');
+            $table->string('email', 100);
             $table->text('device_token');
             $table->enum('device', ['Mobile', 'Website'])->default('Mobile');
             $table->tinyInteger('number')->default(1);
             $table->timestamps();
-            $table->foreign('id_user')->references('id_user')
+            $table->foreign('email')->references('email')
                 ->on('0users')->onDelete('cascade');
         });
     }
