@@ -9,7 +9,7 @@ class Report extends Model
 {
     use HasFactory;
 
-    protected $table = "0events";
+    protected $table = "0reports";
     protected $primaryKey = "id_report";
     public $incrementing = true; 
     public $timestamps = true;

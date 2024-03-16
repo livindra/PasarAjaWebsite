@@ -9,7 +9,7 @@ class ShopCategories extends Model
 {
     use HasFactory;
 
-    protected $table = "0product_categories";
+    protected $table = "0shop_categories";
     protected $primaryKey = "id_cp_shop";
     public $incrementing = true; 
     public $timestamps = true;
