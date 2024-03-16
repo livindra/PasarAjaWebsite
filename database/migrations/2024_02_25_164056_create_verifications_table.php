@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('verifications', function (Blueprint $table) {
-            $table->id();
-            $table->string('phone_number', 15);
-            $table->string('otp', 6);
+        Schema::create('0verifications', function (Blueprint $table) {
+            $table->id('id_verification');
+            $table->string('email', 100);
+            $table->string('otp', 4);
             $table->enum('type', ['Register', 'Forgot']);
             $table->bigInteger('expiration_time');
             $table->timestamps();
+            $table->foreign('email')->references('email')
+                ->on('0users')->onDelete('cascade');
         });
     }
 
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('verifications');
+        Schema::dropIfExists('0verifications');
     }
 };

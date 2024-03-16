@@ -11,14 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('review', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedInteger('id_user');
-            $table->unsignedInteger('id_product');
+        Schema::create('sp_1_rvw', function (Blueprint $table) {
+            $table->id('id_review');
+            $table->unsignedBigInteger('id_user');
+            $table->unsignedBigInteger('id_product');
             $table->enum('star', ['1', '2', '3', '4', '5']);
             $table->date('order_date');
             $table->text('comment')->nullable();
             $table->timestamps();
+            $table->foreign('id_user')->references('id_user')
+                ->on('0users')->onDelete('cascade');
+            $table->foreign('id_product')->references('id_product')
+                ->on('sp_1_prod')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
