@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('0session', function (Blueprint $table) {
+        Schema::create('refresh_token', function (Blueprint $table) {
             $table->id('id_session');
             $table->string('email', 100);
             $table->text('device_token');
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('0session');
+        Schema::dropIfExists('refresh_token');
     }
 };

@@ -46,7 +46,7 @@ class MobileAuthController extends Controller
     {
         $email = $request->input('email');
 
-        $isExist = RefreshToken::select('email')->where('email', '=', $email)->limit(1)->exists();
+        $isExist = RefreshToken::select('email')->where('email','=',$email, 'and', 'device','=','mobile')->limit(1)->exists();
 
         if ($isExist) {
             return response()->json(['status' => 'success', 'message' => 'Akun sedang login'], 200);
@@ -183,7 +183,7 @@ class MobileAuthController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Login Berhasil', 'data' => $userData[0]], 200);
     }
 
-    public function signinGoogle(Request $request)
+    public function signinGoogle(Request $request, JwtMobileController $jwtController, RefreshToken $refreshToken)
     {
         $email = $request->input('email');
 
@@ -195,8 +195,19 @@ class MobileAuthController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Email tersebut belum terdaftar'], 400);
         } else {
             // get user data
-            $userData = User::select("*")->where('email', $email)->limit(1)->get();
-            return response()->json(['status' => 'success', 'message' => 'Login Berhasil', 'data' => $userData[0]], 200);
+            // $userData = User::select("*")->where('email', $email)->limit(1)->get();
+            // return response()->json(['status' => 'success', 'message' => 'Login Berhasil', 'data' => $userData[0]], 200);
+
+            $data = $jwtController->createJWTMobile($email,$refreshToken);
+            if(is_null($data)){
+                return response()->json(['status'=>'error','message'=>'create token error'],200);
+            }else{
+                if($data['status'] == 'error'){
+                    return response()->json(['status'=>'error','message'=>$data['message']],200);
+                }else{
+                    return $data;
+                }
+            }
         }
     }
 
