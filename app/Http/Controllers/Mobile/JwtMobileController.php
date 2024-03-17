@@ -7,6 +7,7 @@ use App\Models\RefreshToken;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Firebase\JWT\JWT;
+use Illuminate\Http\Request;
 use UnexpectedValueException;
 
 class JwtMobileController extends Controller
@@ -37,8 +38,13 @@ class JwtMobileController extends Controller
         }
     }
 
-    public function generateToken($email, RefreshToken $refreshToken)
+    public function generateToken(Request $request, RefreshToken $refreshToken)
     {
+        // get data
+        $email = $request->input('email');
+        $deviceToken = $request->input('device_token');
+        $deviceName = $request->input('device_name');
+
         // cek email exist atau tidak
         $isExist = User::select('email')->where('email', '=', $email)->limit(1)->exists();
         // jika email exist
@@ -62,6 +68,11 @@ class JwtMobileController extends Controller
             $refreshToken->email = $email;
             $refreshToken->token = $rToken;
             $refreshToken->device = 'Mobile';
+            $refreshToken->device_token = $deviceToken;
+            if(is_null($deviceName)){
+                $deviceName = 'Unknown';
+            }
+            $refreshToken->device_name = $deviceName;
             $refreshToken->number = 1;
 
             return ['status' => 'success', 'access_token' => $token, 'refresh_token' => $rToken];
@@ -70,8 +81,10 @@ class JwtMobileController extends Controller
         }
     }
 
-    public function createJWTMobile($email, RefreshToken $refreshToken)
+    public function createJWTMobile(Request $request, RefreshToken $refreshToken)
     {
+        $email = $request->input('email');
+  
         try {
             if (empty($email) || is_null($email)) {
                 return ['status' => 'error', 'message' => 'email empty'];
@@ -82,7 +95,7 @@ class JwtMobileController extends Controller
                 if ($number['data'] >= 1) {
 
                     // generate new token
-                    $tokens = $this->generateToken($email, $refreshToken);
+                    $tokens = $this->generateToken($request, $refreshToken);
                     if ($tokens['status'] === 'success') {
                         $rToken = $tokens['refresh_token'];
                     } else {
@@ -92,7 +105,7 @@ class JwtMobileController extends Controller
                     // update token
                     $isUpdate = $refreshToken->where('email', '=', $email, 'and', 'device', '=', 'mobile')
                         ->update(['token' => $rToken]);
-                    
+
                     // cek update
                     if (!is_null($isUpdate)) {
                         return ['status' => 'success', 'data' => json_decode(json_encode($rToken), true), 'number' => 1];
@@ -102,7 +115,7 @@ class JwtMobileController extends Controller
                 } else {
 
                     // generate new token
-                    $tokens = $this->generateToken($email, $refreshToken);
+                    $tokens = $this->generateToken($request, $refreshToken);
                     if ($tokens['status'] === 'success') {
                         $accessToken = $tokens['access_token'];
                     } else {
@@ -138,8 +151,7 @@ class JwtMobileController extends Controller
                 $token = JWT::encode($payloadRefresh, $secretRefreshKey, 'HS512');
 
                 // update token
-                $update = DB::table('refresh_token')
-                    ->where('email', '=', $email, 'and', 'device', '=', 'mobile')
+                $update = RefreshToken::where('email', '=', $email, 'and', 'device', '=', 'mobile')
                     ->update(['token' => $token]);
 
                 // cek update

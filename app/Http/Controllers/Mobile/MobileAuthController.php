@@ -132,9 +132,10 @@ class MobileAuthController extends Controller
 
     public function signinEmail(Request $request, JwtMobileController $jwtController, RefreshToken $refreshToken)
     {
-
         $email = $request->input('email');
         $password = $request->input('password');
+        $request->input('device_token');
+        $request->input('device_name');
 
         // cek email exist atau tidak
         $isExist = json_decode($this->isExistEmail($request)->getContent(), true);
@@ -156,14 +157,14 @@ class MobileAuthController extends Controller
         // return response()->json(['status' => 'success', 'message' => 'Login Berhasil', 'data' => $userData[0]], 200);
 
         // create token
-        $data = $jwtController->createJWTMobile($email, $refreshToken);
-        if (is_null($data)) {
+        $token = $jwtController->createJWTMobile($request, $refreshToken);
+        if (is_null($token)) {
             return response()->json(['status' => 'error', 'message' => 'create token error'], 400);
         } else {
-            if ($data['status'] == 'error') {
-                return response()->json(['status' => 'error', 'message' => $data['message']], 400);
+            if ($token['status'] == 'error') {
+                return response()->json(['status' => 'error', 'message' => $token['message']], 400);
             } else {
-                return $data;
+                return $token;
             }
         }
     }
@@ -172,6 +173,8 @@ class MobileAuthController extends Controller
     {
         $phone = $request->input('phone_number');
         $pin = $request->input('pin');
+        $request->input('device_token');
+        $request->input('device_name');
 
         // cek nomor hp exist atau tidak
         $isExistPhone = json_decode($this->isExistPhone($request)->getContent(), true);
@@ -193,17 +196,18 @@ class MobileAuthController extends Controller
         // return response()->json(['status' => 'success', 'message' => 'Login Berhasil', 'data' => $userData[0]], 200);
 
         // get email
-        $email = User::select('email')->where('phone_number', '=', $phone)->limit(1)->get();
+        $email = User::select('email')->where('phone_number', '=', $phone)->limit(1)->first();
+        $request->merge(['email' => $email->email]);
 
         // create token
-        $data = $jwtController->createJWTMobile($email[0]->email, $refreshToken);
-        if (is_null($data)) {
+        $token = $jwtController->createJWTMobile($request, $refreshToken);
+        if (is_null($token)) {
             return response()->json(['status' => 'error', 'message' => 'create token error'], 400);
         } else {
-            if ($data['status'] == 'error') {
-                return response()->json(['status' => 'error', 'message' => $data['message']], 400);
+            if ($token['status'] == 'error') {
+                return response()->json(['status' => 'error', 'message' => $token['message']], 400);
             } else {
-                return $data;
+                return $token;
             }
         }
     }
@@ -211,6 +215,8 @@ class MobileAuthController extends Controller
     public function signinGoogle(Request $request, JwtMobileController $jwtController, RefreshToken $refreshToken)
     {
         $email = $request->input('email');
+        $request->input('device_name');
+        $request->input('device_token');
 
         // cek email exist atau tidak
         $isExistEmail = json_decode($this->isExistEmail($request)->getContent(), true);
@@ -223,14 +229,14 @@ class MobileAuthController extends Controller
             // $userData = User::select("*")->where('email', $email)->limit(1)->get();
             // return response()->json(['status' => 'success', 'message' => 'Login Berhasil', 'data' => $userData[0]], 200);
 
-            $data = $jwtController->createJWTMobile($email, $refreshToken);
-            if (is_null($data)) {
+            $token = $jwtController->createJWTMobile($request, $refreshToken);
+            if (is_null($token)) {
                 return response()->json(['status' => 'error', 'message' => 'create token error'], 400);
             } else {
-                if ($data['status'] == 'error') {
-                    return response()->json(['status' => 'error', 'message' => $data['message']], 400);
+                if ($token['status'] == 'error') {
+                    return response()->json(['status' => 'error', 'message' => $token['message']], 400);
                 } else {
-                    return $data;
+                    return $token;
                 }
             }
         }
@@ -345,14 +351,15 @@ class MobileAuthController extends Controller
         }
     }
 
-    public function logout(Request $request, JWTMobileController $jwtController){
+    public function logout(Request $request, JWTMobileController $jwtController)
+    {
         $email = $request->input('email');
         // hapus token
         $deleted = $jwtController->deleteRefreshMobile($email);
-        if($deleted['status'] == 'error'){
-            return response()->json(['status'=>'error','message'=>'logout gagal'],400);
-        }else{
-            return response()->json(['status'=>'success','message'=>'logout berhasil'],200);
+        if ($deleted['status'] == 'error') {
+            return response()->json(['status' => 'error', 'message' => 'logout gagal'], 400);
+        } else {
+            return response()->json(['status' => 'success', 'message' => 'logout berhasil'], 200);
         }
     }
 }

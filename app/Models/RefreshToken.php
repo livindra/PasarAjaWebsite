@@ -11,8 +11,8 @@ class RefreshToken extends Model implements JWTSubject
 {
     use Notifiable;
 
-    protected $table = "refresh_token";
-    protected $primaryKey = "id_session";
+    protected $table = "0refresh_token";
+    protected $primaryKey = "id_token";
     public $incrementing = true; 
     public $timestamps = true;
 
