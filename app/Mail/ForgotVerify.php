@@ -9,9 +9,10 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class OtpVerify extends Mailable
+class ForgotVerify extends Mailable
 {
     use Queueable, SerializesModels;
+
 
     private $data = [];
 
@@ -25,9 +26,10 @@ class OtpVerify extends Mailable
 
     public function build()
     {
-        return $this->from(env('MAIL_FROM_ADDRESS', 'hakiahmad756@gmail.com'), env('APP_NAME', 'PasarAja'))
-            ->subject($this->data['subject'])
-            ->view('messenger.otpverify')
+        return $this
+            ->from(env('MAIL_FROM_ADDRESS', 'hakiahmad756@gmail.com'))
+            ->subject($this->data['otp'] . ' Adalah Kode OTP Anda')
+            ->view('verify.forgot')
             ->with('data', $this->data);
     }
 }

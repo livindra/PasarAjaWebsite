@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Messenger;
 
 use App\Http\Controllers\Controller;
-use App\Mail\OtpVerify;
 use Exception;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\OtpVerify;
 use App\Mail\MailMessage;
 use App\Models\User;
 use App\Models\Verification;
@@ -52,7 +52,7 @@ class MailController extends Controller
             ];
 
             // Mengirim email
-            Mail::to($email)->send(new OtpVerify($data));
+            Mail::to($email)->send(new MailMessage($data));
 
             $dataOtp = [
                 'id_verification' => '2',
@@ -103,7 +103,7 @@ class MailController extends Controller
                 ];
 
                 // Mengirim email
-                Mail::to($emailValue)->send(new OtpVerify($data));
+                Mail::to($emailValue)->send(new MailMessage($data));
 
                 $dataOtp = [
                     'id_verification' => '2',
