@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Messenger\MailController;
 use App\Http\Controllers\Mobile\MobileAuthController;
+use App\Http\Controllers\Mobile\VerifyController;
 use App\Http\Controllers\Shop\ShopController;
 use App\Http\Controllers\ShopModel\ShopControllers;
 use Illuminate\Http\Request;
@@ -39,17 +40,21 @@ Route::group(['prefix'=>'/m'], function(){
             Route::post('/google', [MobileAuthController::class, 'signinGoogle']);
         });
         Route::group(['prefix'=>'update'], function(){
-            Route::post('/pw', [MobileAuthController::class, 'changePassword']);
-            Route::post('/pin', [MobileAuthController::class, 'changePin']);
+            Route::put('/pw', [MobileAuthController::class, 'changePassword']);
+            Route::put('/pin', [MobileAuthController::class, 'changePin']);
         });
         Route::delete('/logout', [MobileAuthController::class, 'logout']);
+    });
+
+    // verify
+    Route::group(['prefix'=>'verify'], function(){
+        Route::post('/otp', [VerifyController::class, 'verify']);
+        Route::post('/otpbyphone', [VerifyController::class, 'verifyByPhone']);
     });
 
     // messenger
     Route::group(['prefix'=>'messenger'], function(){
         Route::get('/test', [MailController::class, 'sendEmail']);
-        Route::post('/otp', [MailController::class, 'sendOtpCode']);
-        Route::post('/otphone', [MailController::class, 'sendOtpCodeByPhone']);
     });
 
     Route::group(['prefix'=>'shop'], function(){

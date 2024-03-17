@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('email', 100);
             $table->string('otp', 4);
             $table->enum('type', ['Register', 'Forgot']);
+            $table->tinyInteger('number');
             $table->bigInteger('expiration_time');
             $table->timestamps();
             $table->foreign('email')->references('email')

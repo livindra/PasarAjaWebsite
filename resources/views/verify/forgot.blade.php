@@ -8,8 +8,8 @@
 </head>
 <body>
 
-    <h3> {{ $data['subject'] }} </h3>
-    <p> {{ $data['body'] }} </p>
+    {{-- <h3> {{ $data['subject'] }} </h3> --}}
+    <p> Gunakan Kode OTP Berikut Untuk Memverifikasi Lupa Password Anda {{ $data['otp'] }} </p>
 
 </body>
 </html>
