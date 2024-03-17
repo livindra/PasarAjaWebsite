@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('0session', function (Blueprint $table) {
-            $table->id('id_session');
+        Schema::create('0refresh_token', function (Blueprint $table) {
+            $table->id('id_token');
             $table->string('email', 100);
-            $table->text('device_token');
+            $table->text('token');
             $table->enum('device', ['Mobile', 'Website'])->default('Mobile');
+            $table->string('device_name', 20)->nullable()->default('Unknown');
+            $table->text('device_token')->nullable();
             $table->tinyInteger('number')->default(1);
             $table->timestamps();
             $table->foreign('email')->references('email')
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('0session');
+        Schema::dropIfExists('0refresh_token');
     }
 };
