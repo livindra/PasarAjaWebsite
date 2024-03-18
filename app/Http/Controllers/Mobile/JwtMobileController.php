@@ -56,7 +56,7 @@ class JwtMobileController extends Controller
             $exp = time() + intval(env('JWT_ACCESS_TOKEN_EXPIRED'));
             $expRefresh = time() + intval(env('JWT_REFRESH_TOKEN_EXPIRED'));
             // prepare payload
-            $payload = [$data, 'number' => 1, 'exp' => $exp];
+            $payload = ['data' => $data, 'number' => 1, 'exp' => $exp];
             $payloadRefresh = ['data' => $data, 'exp' => $expRefresh];
             // get secret key
             $secretKey = env('JWT_SECRET_MOBILE');
@@ -102,9 +102,16 @@ class JwtMobileController extends Controller
                         return ['status' => 'error', 'message' => $tokens['message']];
                     }
 
+                    // put new data
+                    $newData = [
+                        'token' => $rToken,
+                        'device_name' => $request->input('device_name'),
+                        'device_token' => $request->input('device_token'),
+                    ];
+
                     // update token
                     $isUpdate = $refreshToken->where('email', '=', $email, 'and', 'device', '=', 'mobile')
-                        ->update(['token' => $rToken]);
+                        ->update($newData);
 
                     // cek update
                     if (!is_null($isUpdate)) {

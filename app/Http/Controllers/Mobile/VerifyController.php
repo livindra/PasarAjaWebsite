@@ -84,7 +84,8 @@ class VerifyController extends Controller
             } else {
                 // random otp code, endmillis & update number
                 $otpCode = strval(rand(1000, 9999));
-                $expTime = (round(microtime(true) * 1000) + 900000);
+                // $expTime = (round(microtime(true) * 1000) + 900000);
+                $expTime = (round(microtime(true) * 1000) + 60000);
                 $number = ($oldOtpData) ? (++$oldOtpData->number) : 0;
 
                 // put data
