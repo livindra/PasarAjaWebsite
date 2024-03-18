@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('0verifications', function (Blueprint $table) {
-            $table->id('id_verification');
-            $table->string('email', 100);
-            $table->string('otp', 4);
-            $table->enum('type', ['Register', 'Forgot']);
-            $table->tinyInteger('number');
-            $table->bigInteger('expiration_time');
+        Schema::create('us_1_trx', function (Blueprint $table) {
+            $table->id('id_trx');
+            $table->mediumText('transaction');
             $table->timestamps();
         });
     }
@@ -27,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('0verifications');
+        Schema::dropIfExists('us_1_trx');
     }
 };

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('id_shop');
             $table->unsignedBigInteger('id_user')->unique();
             $table->unsignedBigInteger('id_cp_shop');
+            $table->string('phone_number', 15)->unique();
             $table->string('shop_name', 50);
             $table->text('description')->nullable();
             $table->text('benchmark')->nullable();
