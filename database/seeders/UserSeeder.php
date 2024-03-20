@@ -14,9 +14,9 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::create([
-            'phone_number' => '6285655864624',
+            'phone_number' => '6285655864625',
             'email' => 'hakiahmad756@gmail.com',
-            'full_name' => 'Achmad Baihaqi',
+            'full_name' => 'Admin PasarAja',
             'password' => '$2y$12$74jkra2isCFBkJcnrY7Y2edY8xw/gkX.uuaP8CY.zF97HAMP8Glle',
             'pin' => '$2y$12$bdru8P9QGViFD3PDbqIUjuMRMoeeZdnqyG6rlPasQ/0UAAtAiChQy',
             'is_verified' => '1',

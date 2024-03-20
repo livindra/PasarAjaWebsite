@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Mobile;
 use App\Http\Controllers\Controller;
 use App\Models\RefreshToken;
 use App\Models\User;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 
 class MobileAuthController extends Controller
@@ -53,6 +55,36 @@ class MobileAuthController extends Controller
         } else {
             return response()->json(['status' => 'error', 'message' => 'Akun belum login'], 400);
         }
+    }
+
+    private function createTableCart($tableName)
+    {
+        // create table cart
+        Schema::dropIfExists($tableName);
+        Schema::create($tableName, function (Blueprint $table) {
+            $table->id('id_cart');
+            $table->unsignedBigInteger('id_user');
+            $table->unsignedBigInteger('id_shop');
+            $table->integer('id_product');
+            $table->smallInteger('quantity');
+            $table->integer('price');
+            $table->timestamps();
+            $table->foreign('id_user')->references('id_user')
+                ->on('0users')->onDelete('cascade');
+            $table->foreign('id_shop')->references('id_shop')
+                ->on('0shops')->onDelete('cascade');
+        });
+    }
+
+    private function createTableTransaction($tableName)
+    {
+        // create table transaction
+        Schema::dropIfExists($tableName);
+        Schema::create($tableName, function (Blueprint $table) {
+            $table->id('id_trx');
+            $table->mediumText('transaction');
+            $table->timestamps();
+        });
     }
 
     public function createUser(Request $request, User $user)
@@ -107,7 +139,7 @@ class MobileAuthController extends Controller
     public function register(Request $request, User $user)
     {
         $request->input("phone_number");
-        $request->input('email');
+        $email = $request->input('email');
         $request->input('full_name');
         $request->input('password');
         $request->input('pin');
@@ -121,11 +153,28 @@ class MobileAuthController extends Controller
         } else if ($isExistPhone['status'] === 'success') {
             return response()->json(['status' => 'error', 'message' => 'Nomor HP sudah terdaftar'], 400);
         } else {
+            // create akun
             $result = $this->createUser($request, $user);
-            if ($request['status'] == 'error') {
-                return response()->json(['status' => 'error', 'message' => $request['message']], 400);
+            if ($result['status'] == 'error') {
+                return response()->json(['status' => 'error', 'message' => $result['message']], 400);
             } else {
-                return $result;
+
+                // get user data
+                $userData = $user->select('id_user')->where('email', '=', $email)
+                    ->limit(1)->first();
+
+                // generate table name
+                $tableId = 'us_' . $userData->id_user . '_';
+                $tableCart = $tableId . 'cart';
+                $tableTrasaction = $tableId . 'trx';
+
+                // create table cart
+                $this->createTableCart($tableCart);
+
+                // create table transaction
+                $this->createTableTransaction($tableTrasaction);
+
+                return response()->json(['status' => 'success', 'message' => 'Register berhasil'], 200);
             }
         }
     }
@@ -273,7 +322,7 @@ class MobileAuthController extends Controller
         $newPass = $request->input('password');
         $passHash = Hash::make($newPass);
 
-        // cek nomor hp exist atau tidak
+        // cek email exist atau tidak
         $isExistEmail = json_decode($this->isExistEmail($request)->getContent(), true);
 
         // jika email tidak exist
@@ -328,7 +377,7 @@ class MobileAuthController extends Controller
 
         // jika nomor hp tidak exist
         if ($isExistPhone['status'] !== 'success') {
-            return response()->json(['status' => 'success', 'message' => 'Nomor HP tidak terdaftar'], 400);
+            return response()->json(['status' => 'error', 'message' => 'Nomor HP tidak terdaftar'], 400);
         } else {
             // menupdate pin
             $update = User::select('phone_number')->where('phone_number', '=', $phone)->update(['pin' => $pinHash]);
@@ -351,6 +400,49 @@ class MobileAuthController extends Controller
         }
     }
 
+    public function updateDeviceToken(Request $request, RefreshToken $refreshToken)
+    {
+        // validasi data
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        // custom message
+        $customMsg = [
+            'email' => 'Email tidak valid',
+        ];
+        $validator->setCustomMessages($customMsg);
+
+        // cek validasi
+        if ($validator->fails()) {
+            return ['status' => 'error', 'message' => $validator->errors()->first()];
+        }
+
+        $email = $request->input('email');
+        $deviceToken = $request->input('device_token');
+
+        // cek email exist atau tidak
+        $isExistEmail = $refreshToken::select('email')
+            ->where('email', '=', $email)
+            ->limit(1)->exists();
+
+        // jika email tidak exist
+        if ($isExistEmail) {
+            // update device token
+            $update = $refreshToken->select('device_token')
+                ->where('email', '=', $email)
+                ->update(['device_token' => $deviceToken]);
+
+            if ($update) {
+                return response()->json(['status' => 'success', 'message' => 'Device token berhasil diupdate'], 200);
+            } else {
+                return response()->json(['status' => 'error', 'message' => 'Device token gagal diupdate'], 400);
+            }
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Email tidak terdaftar'], 400);
+        }
+    }
+
     public function logout(Request $request, JWTMobileController $jwtController)
     {
         $email = $request->input('email');
@@ -360,6 +452,30 @@ class MobileAuthController extends Controller
             return response()->json(['status' => 'error', 'message' => 'logout gagal'], 400);
         } else {
             return response()->json(['status' => 'success', 'message' => 'logout berhasil'], 200);
+        }
+    }
+
+    public function deleteAccount(Request $request, User $user)
+    {
+        $idUser = $request->input('id_user');
+
+        // generate table name
+        $tableId = 'us_' . $idUser . '_';
+        $tableCart = $tableId . 'cart';
+        $tableTrasaction = $tableId . 'trx';
+
+        // delete account
+        $deleteData = $user->where('id_user', '=', $idUser)
+            ->limit(1)->delete();
+
+        if ($deleteData) {
+            // delete table
+            Schema::dropIfExists($tableCart);
+            Schema::dropIfExists($tableTrasaction);
+
+            return response()->json(['status' => 'success', 'message' => 'Akun berhasil dihapus'], 200);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Akun gagal dihapus'], 400);
         }
     }
 }
