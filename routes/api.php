@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Messenger\MailController;
 use App\Http\Controllers\Mobile\MobileAuthController;
+use App\Http\Controllers\Mobile\ProductController;
 use App\Http\Controllers\Mobile\VerifyController;
 use App\Http\Controllers\Website\ShopController;
 use Illuminate\Http\Request;
@@ -56,6 +57,17 @@ Route::group(['prefix' => '/m'], function () {
     // messenger
     Route::group(['prefix' => 'messenger'], function () {
         Route::get('/test', [MailController::class, 'sendEmail']);
+    });
+
+    // product
+    Route::group(['prefix' => 'prod'], function() {
+        Route::post('/create', [ProductController::class, 'createProduct']);
+        Route::group(['prefix' => 'update'], function(){
+            Route::post('/data', [ProductController::class, 'updateProduct']);
+            Route::put('/stok', [ProductController::class, 'setStock']);
+            Route::put('/visibility', [ProductController::class, 'setVisibility']);
+            Route::put('/recommended', [ProductController::class, 'setRecommended']);
+        });
     });
 });
 
