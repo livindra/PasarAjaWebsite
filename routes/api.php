@@ -1,9 +1,12 @@
 <?php
 
 use App\Http\Controllers\Messenger\MailController;
-use App\Http\Controllers\Mobile\MobileAuthController;
-use App\Http\Controllers\Mobile\ProductController;
-use App\Http\Controllers\Mobile\VerifyController;
+use App\Http\Controllers\Mobile\Auth\MobileAuthController;
+use App\Http\Controllers\Mobile\Auth\VerifyController;
+use App\Http\Controllers\Mobile\Merchant\ProductController;
+use App\Http\Controllers\Mobile\Merchant\ProductComplainController;
+use App\Http\Controllers\Mobile\Merchant\ProductHistoryController;
+use App\Http\Controllers\Mobile\Merchant\ProductReviewController;
 use App\Http\Controllers\Website\ShopController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -60,13 +63,30 @@ Route::group(['prefix' => '/m'], function () {
     });
 
     // product
-    Route::group(['prefix' => 'prod'], function() {
+    Route::group(['prefix' => 'prod'], function () {
         Route::post('/create', [ProductController::class, 'createProduct']);
-        Route::group(['prefix' => 'update'], function(){
+        Route::get('/details', [ProductController::class, 'detailProduct']);
+        Route::group(['prefix' => 'update'], function () {
             Route::post('/data', [ProductController::class, 'updateProduct']);
             Route::put('/stok', [ProductController::class, 'setStock']);
             Route::put('/visibility', [ProductController::class, 'setVisibility']);
             Route::put('/recommended', [ProductController::class, 'setRecommended']);
+        });
+
+        // review
+        Route::group(['prefix' => '/rvw'], function () {
+            Route::get('/', [ProductReviewController::class, 'getReviews']);
+            Route::post('/add', [ProductReviewController::class, 'addReview']);
+        });
+
+        // complain
+        Route::group(['prefix' => '/comp'], function () {
+            Route::get('/', [ProductComplainController::class, 'getComplains']);
+        });
+
+        // history
+        Route::group(['prefix' => '/hist'], function () {
+            Route::get('/', [ProductHistoryController::class, 'historyProduct']);
         });
     });
 });

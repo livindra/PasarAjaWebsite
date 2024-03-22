@@ -82,7 +82,7 @@ class ShopController extends Controller
             $table->smallInteger('total_sold')->default(0);
             $table->text('settings')->nullable()->default('{"is_recommended": false, "is_shown": false, "is_available": false}');
             $table->text('promos')->nullable()->default('{"default_price": 80000, "promo_price": 70000, "promo_start": "2024-01-01", "promo_end": "2024-01-17"}');
-            $table->text('photo');
+            $table->string('photo', 15);
             $table->timestamps();
             $table->foreign('id_shop')->references('id_shop')
                 ->on('0shops')->onDelete('cascade');
@@ -105,6 +105,25 @@ class ShopController extends Controller
             $table->timestamps();
             $table->foreign('id_user')->references('id_user')
                 ->on('0users')->onDelete('cascade');
+            $table->foreign('id_product')->references('id_product')
+                ->on($tableProd)->onUpdate('cascade')->onDelete('cascade');
+        });
+    }
+
+    private function createTableComplain($tableName, $tableProd)
+    {
+        Schema::dropIfExists($tableName);
+        Schema::create($tableName, function (Blueprint $table) use ($tableProd) {
+            $table->id('id_complain');
+            $table->unsignedBigInteger('id_user');
+            $table->unsignedBigInteger('id_shop');
+            $table->unsignedBigInteger('id_product');
+            $table->text('reason');
+            $table->timestamps();
+            $table->foreign('id_user')->references('id_user')
+                ->on('0users')->onDelete('no action');
+            $table->foreign('id_shop')->references('id_shop')
+                ->on('0shops')->onDelete('cascade');
             $table->foreign('id_product')->references('id_product')
                 ->on($tableProd)->onUpdate('cascade')->onDelete('cascade');
         });
@@ -190,6 +209,7 @@ class ShopController extends Controller
                 $tableId = 'sp_' . $shopData->id_shop . '_';
                 $tableProduct = $tableId . 'prod';
                 $tableReview = $tableId . 'rvw';
+                $tableComplain = $tableId . 'comp';
                 $tableTransaction = $tableId . 'trx';
                 $tabelTransacDetail = $tableId . 'trx_dtl';
 
@@ -198,6 +218,9 @@ class ShopController extends Controller
 
                 // create table review
                 $this->createTableReview($tableReview, $tableProduct);
+
+                // create table complain
+                $this->createTableComplain($tableComplain, $tableProduct);
 
                 // create table transaction
                 $this->createTableTransaction($tableTransaction);
@@ -342,6 +365,7 @@ class ShopController extends Controller
             $tableId = 'sp_' . $idShop . '_';
             $tableProduct = $tableId . 'prod';
             $tableReview = $tableId . 'rvw';
+            $tableComplain = $tableId . 'comp';
             $tableTransaction = $tableId . 'trx';
             $tabelTransacDetail = $tableId . 'trx_dtl';
 
@@ -349,6 +373,7 @@ class ShopController extends Controller
             Schema::dropIfExists($tabelTransacDetail);
             Schema::dropIfExists($tableTransaction);
             Schema::dropIfExists($tableReview);
+            Schema::dropIfExists($tableComplain);
             Schema::dropIfExists($tableProduct);
 
             // deleting shop data

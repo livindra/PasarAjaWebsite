@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('pin');
             $table->enum('level', ['Pengelola', 'Penjual', 'Pembeli'])->default('Pembeli');
             $table->boolean('is_verified')->default(0);
-            $table->text('photo')->nullable()->default('photo-profile.png');
+            $table->string('photo', 15)->nullable()->default('photo-profile.png');
             $table->timestamps();
         });
     }
