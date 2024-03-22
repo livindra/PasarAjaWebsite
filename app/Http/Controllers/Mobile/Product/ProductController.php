@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Mobile\Merchant;
+namespace App\Http\Controllers\Mobile\Product;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductCategories;
@@ -521,6 +521,37 @@ class ProductController extends Controller
         }
     }
 
+    public function allProducts(Request $request)
+    {
+        $idShop = $request->input('id_shop');
+        $filter = $request->input('id_category', '-');
+
+        // generate table name
+        $tableName = $this->generateTableName($idShop);
+
+        // cek jika data exist atau tidak
+        $isExistShop = $this->isExistShop($idShop);
+        if ($isExistShop['status'] === 'success') {
+
+            if ($filter === '-') {
+                // get all product
+                $products = DB::table($tableName)->select()
+                    ->orderBy('product_name', 'asc')
+                    ->get();
+            } else {
+                // get all product
+                $products = DB::table($tableName)->select()
+                    ->where('id_cp_prod', $filter)
+                    ->orderBy('product_name', 'asc')
+                    ->get();
+            }
+
+            return response()->json(['status' => 'error', 'message' => 'Toko tidak ditemukan', 'data' => $products], 200);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Toko tidak ditemukan'], 400);
+        }
+    }
+
     public function detailProduct(
         Request $request,
         ProductReviewController $productReview,
@@ -565,13 +596,94 @@ class ProductController extends Controller
 
         // get product data
         $prodData = DB::table($tableName)->select()
-         ->where('id_product', $idProd)
-         ->limit(1)->first();
+            ->where('id_product', $idProd)
+            ->limit(1)->first();
 
-         $prodData->reviews = $reviewsResponse->getData()->data;
-         $prodData->complains = $complainsResponse->getData()->data;
-         $prodData->histories = $historyResponse->getData()->data;
+        $prodData->reviews = $reviewsResponse->getData()->data;
+        $prodData->complains = $complainsResponse->getData()->data;
+        $prodData->histories = $historyResponse->getData()->data;
 
         return $prodData;
+    }
+
+    private function getSpecified(Request $request, $key, $acceptedValue)
+    {
+        $idShop = $request->input('id_shop');
+
+        // geneate table name
+        $tableName = $this->generateTableName($idShop);
+
+        // get semua data product
+        $prodData = DB::table($tableName)->select()->get();
+
+        $prodList = [];
+
+        // ambil data produk
+        foreach ($prodData as $prod) {
+            $settingsData = json_decode($prod->settings, true);
+
+            if ($settingsData[$key] == $acceptedValue) {
+                // Tambahkan $prod ke dalam $prodList
+                $prodList[] = $prod;
+            }
+        }
+
+        //  return response
+        return ['status' => 'success', 'message' => 'Data berhasil diambil', 'data' => $prodList];
+    }
+
+    public function hiddenProducts(Request $request)
+    {
+        $request->input('id_shop');
+
+        // get data produk yang hidden
+        $prodData = $this->getSpecified($request, 'is_shown', false);
+
+        if ($prodData['status'] === 'success') {
+            return response()->json($prodData);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal didapatkan'], 400);
+        }
+    }
+
+    public function recommendedProducts(Request $request)
+    {
+        $request->input('id_shop');
+
+        // get data produk yang hidden
+        $prodData = $this->getSpecified($request, 'is_recommended', true);
+
+        if ($prodData['status'] === 'success') {
+            return response()->json($prodData);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal didapatkan'], 400);
+        }
+    }
+
+    public function unavlProducts(Request $request)
+    {
+        $request->input('id_shop');
+
+        // get data produk yang hidden
+        $prodData = $this->getSpecified($request, 'is_available', false);
+
+        if ($prodData['status'] === 'success') {
+            return response()->json($prodData);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal didapatkan'], 400);
+        }
+    }
+
+    public function bestSelling(Request $request)
+    {
+        $idShop = $request->input('id_shop');
+
+        // geneate table name
+        $tableName = $this->generateTableName($idShop);
+
+        // get best selling
+        $best = DB::table($tableName)->select('*')->orderByDesc('total_sold')->get();
+
+        return response()->json(['status' => 'success', 'message' => 'Data didapatkan', 'data' => $best], 200);
     }
 }
