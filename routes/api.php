@@ -3,11 +3,13 @@
 use App\Http\Controllers\Messenger\MailController;
 use App\Http\Controllers\Mobile\Auth\MobileAuthController;
 use App\Http\Controllers\Mobile\Auth\VerifyController;
-use App\Http\Controllers\Mobile\Merchant\ProductController;
-use App\Http\Controllers\Mobile\Merchant\ProductComplainController;
-use App\Http\Controllers\Mobile\Merchant\ProductHistoryController;
-use App\Http\Controllers\Mobile\Merchant\ProductReviewController;
+use App\Http\Controllers\Mobile\Category\CategoryController;
+use App\Http\Controllers\Mobile\Product\ProductController;
+use App\Http\Controllers\Mobile\Product\ProductComplainController;
+use App\Http\Controllers\Mobile\Product\ProductHistoryController;
+use App\Http\Controllers\Mobile\Product\ProductReviewController;
 use App\Http\Controllers\Website\ShopController;
+use App\Models\ProductCategories;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +45,7 @@ Route::group(['prefix' => '/m'], function () {
             Route::post('/google', [MobileAuthController::class, 'signinGoogle']);
         });
         Route::group(['prefix' => 'update'], function () {
+            Route::post('/pp', [MobileAuthController::class, 'updatePhotoProfile']);
             Route::put('/pw', [MobileAuthController::class, 'changePassword']);
             Route::put('/pin', [MobileAuthController::class, 'changePin']);
             Route::put('/devicetoken', [MobileAuthController::class, 'updateDeviceToken']);
@@ -62,10 +65,19 @@ Route::group(['prefix' => '/m'], function () {
         Route::get('/test', [MailController::class, 'sendEmail']);
     });
 
+    Route::group(['prefix' => 'categories'], function () {
+        Route::get('/', [CategoryController::class, 'allCategories']);
+    });
+
     // product
     Route::group(['prefix' => 'prod'], function () {
+        Route::get('/', [ProductController::class, 'allProducts']);
         Route::post('/create', [ProductController::class, 'createProduct']);
         Route::get('/details', [ProductController::class, 'detailProduct']);
+        Route::get('/hiddens', [ProductController::class, 'hiddenProducts']);
+        Route::get('/recommendeds', [ProductController::class, 'recommendedProducts']);
+        Route::get('/unavls', [ProductController::class, 'unavlProducts']);
+        Route::get('/bestselling', [ProductController::class, 'bestSelling']);
         Route::group(['prefix' => 'update'], function () {
             Route::post('/data', [ProductController::class, 'updateProduct']);
             Route::put('/stok', [ProductController::class, 'setStock']);
@@ -75,18 +87,21 @@ Route::group(['prefix' => '/m'], function () {
 
         // review
         Route::group(['prefix' => '/rvw'], function () {
-            Route::get('/', [ProductReviewController::class, 'getReviews']);
+            Route::get('/', [ProductReviewController::class, 'getAllReview']);
+            Route::get('/prod', [ProductReviewController::class, 'getReviews']);
             Route::post('/add', [ProductReviewController::class, 'addReview']);
+            Route::get('/highest', [ProductReviewController::class, 'getHighestReview']);
         });
 
         // complain
         Route::group(['prefix' => '/comp'], function () {
-            Route::get('/', [ProductComplainController::class, 'getComplains']);
+            Route::get('/', [ProductComplainController::class, 'getAllComplains']);
+            Route::get('/prod', [ProductComplainController::class, 'getComplains']);
         });
 
         // history
         Route::group(['prefix' => '/hist'], function () {
-            Route::get('/', [ProductHistoryController::class, 'historyProduct']);
+            Route::get('/prod', [ProductHistoryController::class, 'historyProduct']);
         });
     });
 });

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Mobile\Merchant;
+namespace App\Http\Controllers\Mobile\Product;
 
 use App\Http\Controllers\Controller;
 use App\Models\Shops;
@@ -22,6 +22,11 @@ class ProductHistoryController extends Controller
         return 'sp_' . $idShop . '_trx_dtl';
     }
 
+    public function generateTableProd($idShop)
+    {
+        return 'sp_' . $idShop . '_prod';
+    }
+
     public function isExistShop($idShop)
     {
         $isExist = Shops::where('id_shop', '=', $idShop)->limit(1)->exists();
@@ -41,6 +46,7 @@ class ProductHistoryController extends Controller
         // generate table
         $tableTrx = $this->generateTableTrx($idShop);
         $tableDtl = $this->generateTableDtl($idShop);
+        $tableProd = $this->generateTableProd($idShop);
 
         // cek apakah toko ada atau tidak didalam database
         $isExistShop = $this->isExistShop($idShop);
@@ -48,29 +54,16 @@ class ProductHistoryController extends Controller
             return response()->json(['status' => 'error', 'message' => $isExistShop['message']], 400);
         }
 
-        $dtls = DB::table($tableDtl)
-        ->select()
-        ->where('id_product', $idProd)
-        ->orderByDesc('id_trx')
-        ->get();
+        // get history transaction
+        $dtls = DB::table(DB::raw("$tableDtl as dtl"))
+            ->join(DB::raw("$tableTrx as trx"), 'trx.id_trx', 'dtl.id_trx')
+            ->join(DB::raw("$tableProd as prod"), 'prod.id_product', 'dtl.id_product')
+            ->join('0users as us', 'us.id_user', 'trx.id_user')
+            ->select(['dtl.*', 'trx.taken_date', 'trx.status', 'trx.created_at', 'prod.product_name', 'us.full_name', 'us.email'])
+            ->where('dtl.id_product', $idProd)
+            ->orderByDesc('dtl.id_trx')
+            ->get();
 
-        foreach ($dtls as $dtl) {
-            $trx = DB::table($tableTrx)
-                ->select()
-                ->where('id_trx', $dtl->id_trx)
-                ->limit(1)->first();
-        
-            $userData = User::select(['full_name', 'email'])
-                ->where('id_user', $trx->id_user)
-                ->limit(1)->first();
-        
-            // Menambahkan properti 'full_name' ke objek $dtl
-            $dtl->status = $trx->status;
-            $dtl->taken_date = $trx->taken_date;
-            $dtl->rejected_message = $trx->rejected_message;
-            $dtl->full_name = $userData->full_name;
-            $dtl->email = $userData->email;
-        }
 
         return response()->json(['status' => 'success', 'message' => 'data didapatkan', 'data' => $dtls], 200);
     }
