@@ -25,7 +25,7 @@ return new class extends Migration
             $table->smallInteger('total_sold')->default(0);
             $table->text('settings')->nullable()->default('{"is_recommended": false, "is_shown": false, "is_available": false}');
             $table->text('promos')->nullable()->default('{"default_price": 80000, "promo_price": 70000, "promo_start": "2024-01-01", "promo_end": "2024-01-17"}');
-            $table->text('photo');
+            $table->string('photo', 15);
             $table->timestamps();
             $table->foreign('id_shop')->references('id_shop')
                 ->on('0shops')->onDelete('cascade');

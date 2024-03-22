@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->text('benchmark')->nullable();
             $table->text('operational')->nullable()->default('{"Senin":"05:00-16:00","Selasa":"05:00-16:00","Rabu":"05:00-16:00","Kamis":"05:00-16:00","Jumat":"05:00-16:00","Sabtu":"05:00-16:00","Minggu":"05:00-16:00"}');
-            $table->text('photo')->nullable();
+            $table->string('photo', 15)->nullable();
             $table->timestamps();
             $table->foreign('id_user')->references('id_user')
                 ->on('0users')->onDelete('cascade');

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('0shop_categories', function (Blueprint $table) {
             $table->id('id_cp_shop');
             $table->string('category_name', 20);
+            $table->string('photo', 15);
         });
     }
 
