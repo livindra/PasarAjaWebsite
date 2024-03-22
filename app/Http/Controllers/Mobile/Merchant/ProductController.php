@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Mobile;
+namespace App\Http\Controllers\Mobile\Merchant;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductCategories;
@@ -519,5 +519,59 @@ class ProductController extends Controller
         } else {
             return response()->json($update, 400);
         }
+    }
+
+    public function detailProduct(
+        Request $request,
+        ProductReviewController $productReview,
+        ProductComplainController $productComplain,
+        ProductHistoryController $prodcutHistory,
+    ) {
+        $idShop = $request->input('id_shop');
+        $idProd = $request->input('id_product');
+
+        // generate table name
+        $tableName = $this->generateTableName($idShop);
+
+        // get review product
+        $reviewsResponse = $productReview->getReviews($request);
+        // jika terjadi kegagalan saat pengambilan review product
+        if ($reviewsResponse->getStatusCode() !== 200) {
+            // return error message
+            $responseData = json_decode($reviewsResponse->getContent(), true);
+            $errorMessage = $responseData['message'];
+            return response()->json(['status' => 'error', 'message' => $errorMessage], 400);
+        }
+
+        // get complain product
+        $complainsResponse = $productComplain->getComplains($request);
+        // jika terjadi kegagalan saat pengambilan review product
+        if ($complainsResponse->getStatusCode() !== 200) {
+            // return error message
+            $responseData = json_decode($complainsResponse->getContent(), true);
+            $errorMessage = $responseData['message'];
+            return response()->json(['status' => 'error', 'message' => $errorMessage], 400);
+        }
+
+        // get history product
+        $historyResponse = $prodcutHistory->historyProduct($request);
+        // jika terjadi kegagalan saat pengambilan review product
+        if ($historyResponse->getStatusCode() !== 200) {
+            // return error message
+            $responseData = json_decode($historyResponse->getContent(), true);
+            $errorMessage = $responseData['message'];
+            return response()->json(['status' => 'error', 'message' => $errorMessage], 400);
+        }
+
+        // get product data
+        $prodData = DB::table($tableName)->select()
+         ->where('id_product', $idProd)
+         ->limit(1)->first();
+
+         $prodData->reviews = $reviewsResponse->getData()->data;
+         $prodData->complains = $complainsResponse->getData()->data;
+         $prodData->histories = $historyResponse->getData()->data;
+
+        return $prodData;
     }
 }
