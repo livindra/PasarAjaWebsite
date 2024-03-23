@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sp_1_comp', function (Blueprint $table) {
-            $table->id('id_complain');
-            $table->unsignedBigInteger('id_user');
+        Schema::create('sp_1_promo', function (Blueprint $table) {
+            $table->id('id_promo');
             $table->unsignedBigInteger('id_shop');
-            $table->integer('id_product');
-            $table->text('reason');
+            $table->unsignedBigInteger('id_product');
+            $table->integer('default_price');
+            $table->integer('promo_price');
+            $table->date('start_date');
+            $table->date('end_date');
             $table->timestamps();
-            $table->foreign('id_user')->references('id_user')
-                ->on('0users')->onDelete('no action');
             $table->foreign('id_shop')->references('id_shop')
                 ->on('0shops')->onDelete('cascade');
+            $table->foreign('id_product')->references('id_product')
+                ->on('sp_1_prod')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
@@ -30,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('0reports');
+        Schema::dropIfExists('sp_1_promo');
     }
 };
