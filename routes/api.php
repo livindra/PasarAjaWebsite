@@ -4,6 +4,7 @@ use App\Http\Controllers\Messenger\MailController;
 use App\Http\Controllers\Mobile\Auth\MobileAuthController;
 use App\Http\Controllers\Mobile\Auth\VerifyController;
 use App\Http\Controllers\Mobile\Category\CategoryController;
+use App\Http\Controllers\Mobile\Page\ProductMerchantController;
 use App\Http\Controllers\Mobile\Product\ProductController;
 use App\Http\Controllers\Mobile\Product\ProductComplainController;
 use App\Http\Controllers\Mobile\Product\ProductHistoryController;
@@ -102,6 +103,37 @@ Route::group(['prefix' => '/m'], function () {
         // history
         Route::group(['prefix' => '/hist'], function () {
             Route::get('/prod', [ProductHistoryController::class, 'historyProduct']);
+        });
+    });
+
+    Route::group(['prefix' => 'page'], function () {
+        // merchant
+        Route::group(['prefix' => 'merchant'], function () {
+            Route::group(['prefix' => 'home'], function () {
+                //
+            });
+            Route::group(['prefix' => 'prod'], function () {
+                Route::get('/', [ProductMerchantController::class, 'page']);
+                Route::get('/rvw', [ProductMerchantController::class, 'reviewPage']);
+                Route::get('/comp', [ProductMerchantController::class, 'complainPage']);
+                Route::get('/unavl', [ProductMerchantController::class, 'unvailablePage']);
+                Route::get('/recommended', [ProductMerchantController::class, 'recommendedPage']);
+                Route::get('/hidden', [ProductMerchantController::class, 'hiddenPage']);
+                Route::get('/highest', [ProductMerchantController::class, 'highestPage']);
+                Route::get('/selling', [ProductMerchantController::class, 'bestSellingPage']);
+                Route::get('/detail', [ProductMerchantController::class, 'detailProduct']);
+            });
+            Route::group(['prefix' => 'promo'], function () {
+                //
+            });
+            Route::group(['prefix' => 'trx'], function () {
+                //
+            });
+        });
+
+        // customer
+        Route::group(['prefix' => 'merchant'], function () {
+            //
         });
     });
 });

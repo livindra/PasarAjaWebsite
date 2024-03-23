@@ -70,6 +70,7 @@ class ProductComplainController extends Controller
             ->join(DB::raw("$tableProd as prod"), 'prod.id_product', 'comp.id_product')
             ->join('0users as us', 'us.id_user', 'comp.id_user')
             ->select('comp.*', 'prod.product_name', 'us.full_name', 'us.email')
+            ->orderByDesc('comp.id_complain')
             ->get();
 
         return response()->json(['status' => 'success', 'message' => 'Data berhasil diambil', 'data' => $complains]);

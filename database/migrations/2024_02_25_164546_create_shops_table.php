@@ -14,18 +14,15 @@ return new class extends Migration
         Schema::create('0shops', function (Blueprint $table) {
             $table->id('id_shop');
             $table->unsignedBigInteger('id_user')->unique();
-            $table->unsignedBigInteger('id_cp_shop');
             $table->string('phone_number', 15)->unique();
             $table->string('shop_name', 50);
             $table->text('description')->nullable();
             $table->text('benchmark')->nullable();
             $table->text('operational')->nullable()->default('{"Senin":"05:00-16:00","Selasa":"05:00-16:00","Rabu":"05:00-16:00","Kamis":"05:00-16:00","Jumat":"05:00-16:00","Sabtu":"05:00-16:00","Minggu":"05:00-16:00"}');
-            $table->string('photo', 15)->nullable();
+            $table->string('photo', 15)->nullable()->default('shop.png');
             $table->timestamps();
             $table->foreign('id_user')->references('id_user')
                 ->on('0users')->onDelete('cascade');
-            $table->foreign('id_cp_shop')->references('id_cp_shop')
-                ->on('0shop_categories')->onUpdate('cascade')->onDelete('no action');
         });
     }
 

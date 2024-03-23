@@ -117,7 +117,8 @@ class ProductReviewController extends Controller
     {
 
         $idShop = $request->input('id_shop');
-        $idCategory = $request->input('id_cp_shop', 0);
+        $idCategory = $request->input('id_category', 0);
+        $limit = $request->input('limit', 1000);
 
         // generate table product and review
         $tableRvw = $this->generateTableReview($idShop);
@@ -134,6 +135,7 @@ class ProductReviewController extends Controller
             ->leftJoin(DB::raw("$tableRvw as rvw"), 'prod.id_product', 'rvw.id_product')
             ->groupBy('prod.id_product', 'prod.product_name', 'prod.id_cp_prod')
             ->orderByRaw('AVG(rvw.star) DESC')
+            ->limit($limit)
             ->get();
 
         return response()->json(['status' => 'success', 'message' => 'Data berhasil didapatkan', 'data' => $products], 200);

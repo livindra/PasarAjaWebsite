@@ -15,7 +15,6 @@ class ShopSeeder extends Seeder
     {
         Shops::create([
             'id_user' => '1',
-            'id_cp_shop' => '1',
             'phone_number' => '6289891212',
             'shop_name' => 'Toko Admin',
             'description' => 'abcdefghijklmnopqrstuvwxyz',

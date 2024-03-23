@@ -524,7 +524,8 @@ class ProductController extends Controller
     public function allProducts(Request $request)
     {
         $idShop = $request->input('id_shop');
-        $filter = $request->input('id_category', '-');
+        $filter = $request->input('id_category', 0);
+        $limit = $request->input('limit', 1000);
 
         // generate table name
         $tableName = $this->generateTableName($idShop);
@@ -533,20 +534,22 @@ class ProductController extends Controller
         $isExistShop = $this->isExistShop($idShop);
         if ($isExistShop['status'] === 'success') {
 
-            if ($filter === '-') {
+            if ($filter === 0) {
                 // get all product
                 $products = DB::table($tableName)->select()
                     ->orderBy('product_name', 'asc')
+                    ->limit($limit)
                     ->get();
             } else {
                 // get all product
                 $products = DB::table($tableName)->select()
                     ->where('id_cp_prod', $filter)
                     ->orderBy('product_name', 'asc')
+                    ->limit($limit)
                     ->get();
             }
 
-            return response()->json(['status' => 'error', 'message' => 'Toko tidak ditemukan', 'data' => $products], 200);
+            return response()->json(['status' => 'success', 'message' => 'Toko tidak ditemukan', 'data' => $products], 200);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Toko tidak ditemukan'], 400);
         }
@@ -603,7 +606,7 @@ class ProductController extends Controller
         $prodData->complains = $complainsResponse->getData()->data;
         $prodData->histories = $historyResponse->getData()->data;
 
-        return $prodData;
+        return response()->json(['status' => 'success', 'message' => 'Data didapatkan', 'data' => $prodData], 200);
     }
 
     private function getSpecified(Request $request, $key, $acceptedValue)
@@ -677,12 +680,14 @@ class ProductController extends Controller
     public function bestSelling(Request $request)
     {
         $idShop = $request->input('id_shop');
+        $limit = $request->input('limit', 1000);
 
         // geneate table name
         $tableName = $this->generateTableName($idShop);
 
         // get best selling
-        $best = DB::table($tableName)->select('*')->orderByDesc('total_sold')->get();
+        $best = DB::table($tableName)->select('*')->orderByDesc('total_sold')
+            ->limit($limit)->get();
 
         return response()->json(['status' => 'success', 'message' => 'Data didapatkan', 'data' => $best], 200);
     }

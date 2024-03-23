@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('0product_categories', function (Blueprint $table) {
             $table->id('id_cp_prod');
+            $table->smallInteger('category_code')->unique();
             $table->string('category_name', 30);
             $table->string('photo', 15)->nullable()->default('category.png');
         });

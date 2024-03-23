@@ -21,7 +21,6 @@ class ShopController extends Controller
             $request->all(),
             [
                 'id_user' => 'required',
-                'id_cp_shop' => 'required',
                 'phone_number' => 'nullable|string|regex:/^\d{9,15}$/',
                 'shop_name' => 'required|min:4|max:50',
                 'description' => 'nullable|max:500',
@@ -30,7 +29,7 @@ class ShopController extends Controller
             ],
             [
                 'id_user.required' => 'ID user tidak boleh kosong',
-                'id_cp_shop.required' => 'Kategori toko tidak boleh kosong',
+
                 'phone_number' => 'Nomor HP tidak valid',
                 'shop_name.required' => 'Nama toko tidak boleh kosong',
                 'shop_name.min' => 'Nama toko harus terdiri dari minimal 4 karakter',
@@ -51,7 +50,6 @@ class ShopController extends Controller
 
         // put data
         $shop->id_user = $request->input('id_user');
-        $shop->id_cp_shop = $request->input('id_cp_shop');
         $shop->phone_number = $request->input('phone_number');
         $shop->shop_name = $request->input('shop_name');
         $shop->description = $request->input('description');
@@ -77,11 +75,10 @@ class ShopController extends Controller
             $table->string('product_name', 50)->unique();
             $table->text('description')->nullable();
             $table->integer('selling_unit');
-            $table->enum('unit', ['Gram', 'Kilogram', 'Ons', 'Kuintal', 'Ton', 'Liter', 'Milliliter', 'Sendok', 'Cangkir', 'Mangkok', 'Botol', 'Karton', 'Dus', 'Buah', 'Ekor']);
+            $table->enum('unit', ['Gram', 'Kilogram', 'Ons', 'Kuintal', 'Ton', 'Liter', 'Milliliter', 'Sendok', 'Cangkir', 'Bungkus', 'Mangkok', 'Botol', 'Karton', 'Dus', 'Buah', 'Ekor']);
             $table->integer('price');
             $table->smallInteger('total_sold')->default(0);
-            $table->text('settings')->nullable()->default('{"is_recommended": false, "is_shown": false, "is_available": false}');
-            $table->text('promos')->nullable()->default('{"default_price": 80000, "promo_price": 70000, "promo_start": "2024-01-01", "promo_end": "2024-01-17"}');
+            $table->text('settings')->nullable()->default('{"is_recommended": false, "is_shown": true, "is_available": true}');
             $table->string('photo', 15);
             $table->timestamps();
             $table->foreign('id_shop')->references('id_shop')
@@ -122,6 +119,26 @@ class ShopController extends Controller
             $table->timestamps();
             $table->foreign('id_user')->references('id_user')
                 ->on('0users')->onDelete('no action');
+            $table->foreign('id_shop')->references('id_shop')
+                ->on('0shops')->onDelete('cascade');
+            $table->foreign('id_product')->references('id_product')
+                ->on($tableProd)->onUpdate('cascade')->onDelete('cascade');
+        });
+    }
+
+    private function createTablePromo($tableName, $tableProd)
+    {
+        // create table shop promo
+        Schema::dropIfExists($tableName);
+        Schema::create($tableName, function (Blueprint $table) use ($tableProd) {
+            $table->id('id_promo');
+            $table->unsignedBigInteger('id_shop');
+            $table->unsignedBigInteger('id_product');
+            $table->integer('default_price');
+            $table->integer('promo_price');
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->timestamps();
             $table->foreign('id_shop')->references('id_shop')
                 ->on('0shops')->onDelete('cascade');
             $table->foreign('id_product')->references('id_product')
@@ -171,7 +188,6 @@ class ShopController extends Controller
     public function createShop(Request $request, Shops $shop)
     {
         $idUser = $request->input('id_user');
-        $request->input('id_cp_shop');
         $phoneNumber = $request->input('phone_number');
         $request->input('shop_name');
         $request->input('description');
@@ -210,6 +226,7 @@ class ShopController extends Controller
                 $tableProduct = $tableId . 'prod';
                 $tableReview = $tableId . 'rvw';
                 $tableComplain = $tableId . 'comp';
+                $tablePromo = $tableId . 'promo';
                 $tableTransaction = $tableId . 'trx';
                 $tabelTransacDetail = $tableId . 'trx_dtl';
 
@@ -221,6 +238,9 @@ class ShopController extends Controller
 
                 // create table complain
                 $this->createTableComplain($tableComplain, $tableProduct);
+
+                // create table promo
+                $this->createTablePromo($tablePromo, $tableProduct);
 
                 // create table transaction
                 $this->createTableTransaction($tableTransaction);
@@ -241,7 +261,6 @@ class ShopController extends Controller
             $request->all(),
             [
                 'id_shop' => 'required',
-                'id_cp_shop' => 'required',
                 'shop_name' => 'required|min:4|max:50',
                 'description' => 'nullable|max:500',
                 'benchmark' => 'required|min:4|max:100',
@@ -249,7 +268,6 @@ class ShopController extends Controller
             ],
             [
                 'id_shop.required' => 'ID toko tidak boleh kosong',
-                'id_cp_shop.required' => 'Kategori toko tidak boleh kosong',
                 'shop_name.required' => 'Nama toko tidak boleh kosong',
                 'shop_name.min' => 'Nama toko harus terdiri dari minimal 4 karakter',
                 'shop_name.max' => 'Nama toko harus terdiri dari maksimal 50 karakter',
@@ -268,7 +286,6 @@ class ShopController extends Controller
 
         // put new data
         $newData = [
-            'id_cp_shop' => $request->input('id_cp_shop'),
             'shop_name' => $request->input('shop_name'),
             'description' => $request->input('description'),
             'benchmark' => $request->input('benchmark'),
@@ -366,6 +383,7 @@ class ShopController extends Controller
             $tableProduct = $tableId . 'prod';
             $tableReview = $tableId . 'rvw';
             $tableComplain = $tableId . 'comp';
+            $tablePromo = $tableId . 'promo';
             $tableTransaction = $tableId . 'trx';
             $tabelTransacDetail = $tableId . 'trx_dtl';
 
@@ -373,6 +391,7 @@ class ShopController extends Controller
             Schema::dropIfExists($tabelTransacDetail);
             Schema::dropIfExists($tableTransaction);
             Schema::dropIfExists($tableReview);
+            Schema::dropIfExists($tablePromo);
             Schema::dropIfExists($tableComplain);
             Schema::dropIfExists($tableProduct);
 
