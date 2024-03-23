@@ -16,7 +16,6 @@ class Shops extends Model
 
     protected $fillable = [
         'id_user',
-        'id_cp_shop',
         'phone_number',
         'shop_name',
         'description',
