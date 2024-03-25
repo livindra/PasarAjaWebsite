@@ -141,7 +141,7 @@ class ProductController extends Controller
             'selling_unit' => 'required|integer',
             'price' => 'required|integer|min:1',
             'photo' => 'required|file|image|max:512',
-            'settings' => 'required|json',
+            'settings' => 'nullable|json',
         ], [
             'id_shop.required' => 'ID Shop tidak boleh kosong.',
             'id_shop.integer' => 'ID Shop harus berupa angka',
@@ -173,22 +173,24 @@ class ProductController extends Controller
         $idCategory = $request->input('id_cp_prod');
         $productName = strtolower($request->input('product_name'));
         $description = $request->input('description');
-        $settings = $request->input('settings');
+        // $settings = $request->input('settings');
         $unit = $request->input('unit');
         $sellingUnit = $request->input('selling_unit');
         $price = $request->input('price');
         $request->file('photo');
 
+        // $settings = ;
+
         // generate table name
         $tableName = $this->generateTableName($idShop);
 
         // validasi data setting
-        $validateSetting = $this->validateSettings($settings);
+        // $validateSetting = $this->validateSettings($settings);
 
         // jika data setting tidak valid
-        if ($validateSetting['status'] === 'error') {
-            return response()->json(['status' => 'error', 'message' => $validateSetting['message']], 400);
-        }
+        // if ($validateSetting['status'] === 'error') {
+        //     return response()->json(['status' => 'error', 'message' => $validateSetting['message']], 400);
+        // }
 
         // cek apakah toko ada atau tidak didalam database
         $isExistShop = $this->isExistShop($idShop);
@@ -219,7 +221,7 @@ class ProductController extends Controller
                 'id_cp_prod' => $idCategory,
                 'product_name' => $productName,
                 'description' => $description,
-                'settings' => $settings,
+                // 'settings' => $settings,
                 'unit' => $unit,
                 'selling_unit' => $sellingUnit,
                 'price' => $price,
@@ -536,17 +538,25 @@ class ProductController extends Controller
 
             if ($filter === 0) {
                 // get all product
-                $products = DB::table($tableName)->select()
+                $products = DB::table(DB::raw("$tableName as prod"))
+                    ->join(DB::raw("0product_categories as ctg"), 'ctg.id_cp_prod', 'prod.id_cp_prod')
+                    ->select("prod.*", "ctg.category_name")
                     ->orderBy('product_name', 'asc')
                     ->limit($limit)
                     ->get();
             } else {
                 // get all product
-                $products = DB::table($tableName)->select()
-                    ->where('id_cp_prod', $filter)
+                $products = DB::table(DB::raw("$tableName as prod"))
+                    ->join(DB::raw("0product_categories as ctg"), 'ctg.id_cp_prod', 'prod.id_cp_prod')
+                    ->select("prod.*", "ctg.category_name")
                     ->orderBy('product_name', 'asc')
+                    ->where('id_cp_prod', $filter)
                     ->limit($limit)
                     ->get();
+            }
+
+            foreach ($products as $prod) {
+                $prod->photo = asset('prods/' . $prod->photo);
             }
 
             return response()->json(['status' => 'success', 'message' => 'Toko tidak ditemukan', 'data' => $products], 200);
@@ -624,6 +634,7 @@ class ProductController extends Controller
         // ambil data produk
         foreach ($prodData as $prod) {
             $settingsData = json_decode($prod->settings, true);
+            $prod->photo = asset('prods/' . $prod->photo);
 
             if ($settingsData[$key] == $acceptedValue) {
                 // Tambahkan $prod ke dalam $prodList
@@ -688,6 +699,10 @@ class ProductController extends Controller
         // get best selling
         $best = DB::table($tableName)->select('*')->orderByDesc('total_sold')
             ->limit($limit)->get();
+
+        foreach ($best as $prod) {
+            $prod->photo = asset('prods/' . $prod->photo);
+        }
 
         return response()->json(['status' => 'success', 'message' => 'Data didapatkan', 'data' => $best], 200);
     }

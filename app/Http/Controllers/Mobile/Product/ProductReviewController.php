@@ -71,10 +71,14 @@ class ProductReviewController extends Controller
         $reviews = DB::table(DB::raw("$tableRvw as rvw"))
             ->join(DB::raw("$tableProd as prod"), 'prod.id_product', 'rvw.id_product')
             ->join('0users as us', 'us.id_user', 'rvw.id_user')
-            ->select('rvw.*', 'prod.product_name', 'us.full_name', 'us.email')
+            ->select('rvw.*', 'prod.product_name', 'us.full_name', 'us.email', 'us.photo')
             ->where('rvw.id_product', $idProd)
             ->orderByDesc('rvw.id_review')
             ->get();
+
+        foreach($reviews as $rvw){
+            $rvw->photo = asset('users/' . $rvw->photo);
+        }
 
         $ratingData = [
             'rating' => $averageRating,
@@ -107,8 +111,12 @@ class ProductReviewController extends Controller
             ->when($star > 0 && $star <= 5, function ($query) use ($star) {
                 return $query->where('rvw.star', $star);
             })
-            ->select('rvw.*', 'prod.product_name', 'us.full_name', 'us.email')
+            ->select('rvw.*', 'prod.product_name', 'us.full_name', 'us.email', 'us.photo')
             ->get();
+
+        foreach ($getData as $prod) {
+            $prod->photo = asset('users/' . $prod->photo);
+        }
 
         return response()->json(['status' => 'success', 'message' => 'Data berhasil didapatkan', 'data' => $getData], 200);
     }
@@ -129,15 +137,20 @@ class ProductReviewController extends Controller
                 'prod.id_product',
                 'prod.product_name',
                 'prod.id_cp_prod',
+                'prod.photo',
                 DB::raw("AVG(rvw.star) as rating"),
                 DB::raw("COUNT(rvw.id_review) as reviewer")
             )
             ->leftJoin(DB::raw("$tableRvw as rvw"), 'prod.id_product', 'rvw.id_product')
-            ->groupBy('prod.id_product', 'prod.product_name', 'prod.id_cp_prod')
+            ->groupBy('prod.id_product', 'prod.product_name', 'prod.id_cp_prod', 'prod.photo')
             ->orderByRaw('AVG(rvw.star) DESC')
             ->limit($limit)
             ->get();
 
+        foreach ($products as $prod) {
+            $prod->rating = doubleval($prod->rating);
+            $prod->photo = asset('prods/' . $prod->photo);
+        }
         return response()->json(['status' => 'success', 'message' => 'Data berhasil didapatkan', 'data' => $products], 200);
     }
 }

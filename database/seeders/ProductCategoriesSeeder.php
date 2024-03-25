@@ -14,8 +14,8 @@ class ProductCategoriesSeeder extends Seeder
     public function run(): void
     {
         ProductCategories::insert([
+            ["category_code" => 100, "category_name" => "Semua"],
             ["category_code" => 100, "category_name" => "Barang Bekas"],
-            ["category_code" => 101, "category_name" => "Barang Antik"],
             ["category_code" => 102, "category_name" => "Peralatan Memancing"],
             ["category_code" => 103, "category_name" => "Perlengkapan Bayi dan Anak"],
             ["category_code" => 104, "category_name" => "Kerajinan Lokal"],

@@ -59,10 +59,14 @@ class ProductHistoryController extends Controller
             ->join(DB::raw("$tableTrx as trx"), 'trx.id_trx', 'dtl.id_trx')
             ->join(DB::raw("$tableProd as prod"), 'prod.id_product', 'dtl.id_product')
             ->join('0users as us', 'us.id_user', 'trx.id_user')
-            ->select(['dtl.*', 'trx.taken_date', 'trx.status', 'trx.created_at', 'prod.product_name', 'us.full_name', 'us.email'])
+            ->select(['dtl.*', 'trx.taken_date', 'trx.status', 'trx.created_at', 'prod.product_name', 'us.full_name', 'us.email', 'us.photo'])
             ->where('dtl.id_product', $idProd)
             ->orderByDesc('dtl.id_trx')
             ->get();
+
+        foreach($dtls as $dtl){
+            $dtl->photo = asset('users/' . $dtl->photo);
+        }
 
 
         return response()->json(['status' => 'success', 'message' => 'data didapatkan', 'data' => $dtls], 200);

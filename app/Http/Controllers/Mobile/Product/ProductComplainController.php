@@ -49,10 +49,16 @@ class ProductComplainController extends Controller
         // get data complain
         $complains = DB::table(DB::raw("$tableComp as comp"))
             ->join(DB::raw("$tableProd as prod"), 'prod.id_product', 'comp.id_product')
-            ->select('comp.*', 'prod.product_name')
+            ->join('0users as us', 'us.id_user', 'comp.id_user')
+            ->select('comp.*', 'prod.product_name', 'prod.photo as product_photo', 'us.full_name', 'us.email', 'us.photo as user_photo')
             ->where('comp.id_product', $idProd)
             ->orderByDesc('comp.id_complain')
             ->get();
+
+        foreach ($complains as $prod) {
+            $prod->product_photo = asset('prods/' . $prod->product_photo);
+            $prod->user_photo = asset('users/' . $prod->user_photo);
+        }
 
         return response()->json(['status' => 'success', 'message' => 'data didapatkan', 'data' => $complains], 200);
     }
@@ -69,9 +75,14 @@ class ProductComplainController extends Controller
         $complains = DB::table(DB::raw("$tableComp AS comp"))
             ->join(DB::raw("$tableProd as prod"), 'prod.id_product', 'comp.id_product')
             ->join('0users as us', 'us.id_user', 'comp.id_user')
-            ->select('comp.*', 'prod.product_name', 'us.full_name', 'us.email')
+            ->select('comp.*', 'prod.product_name', 'prod.photo as product_photo', 'us.full_name', 'us.email', 'us.photo as user_photo')
             ->orderByDesc('comp.id_complain')
             ->get();
+
+        foreach ($complains as $prod) {
+            $prod->product_photo = asset('prods/' . $prod->product_photo);
+            $prod->user_photo = asset('users/' . $prod->user_photo);
+        }
 
         return response()->json(['status' => 'success', 'message' => 'Data berhasil diambil', 'data' => $complains]);
     }
