@@ -706,4 +706,31 @@ class ProductController extends Controller
 
         return response()->json(['status' => 'success', 'message' => 'Data didapatkan', 'data' => $best], 200);
     }
+
+    public function deleteProduct(Request $request)
+    {
+        $idShop = $request->input('id_shop');
+        $idProd = $request->input('id_product');
+
+        $tableProd = $this->generateTableName($idShop);
+
+        // cek apakah toko exist atu tidak
+        $isExistShop = $this->isExistShop($idShop);
+        if ($isExistShop['status'] === 'error') {
+            return response()->json(['status' => 'error', 'message' => 'Toko tidak ditemukan'], 400);
+        }
+
+        // delete data
+        $deleteData = DB::table($tableProd)
+            ->where("id_product", $idProd)
+            ->limit(1)
+            ->delete();
+
+        // return response
+        if ($deleteData) {
+            return response()->json(['status' => 'success', 'message' => 'Product berhasil dihapus'], 200);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Produk gagal dihapus'], 400);
+        }
+    }
 }
