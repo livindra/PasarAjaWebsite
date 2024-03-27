@@ -612,11 +612,45 @@ class ProductController extends Controller
             ->where('id_product', $idProd)
             ->limit(1)->first();
 
-        $prodData->reviews = $reviewsResponse->getData()->data;
+        $prodData->rating = doubleval($reviewsResponse->getData()->data->rating);
+        $prodData->total_review = $reviewsResponse->getData()->data->total_review;
+        $prodData->reviews = $reviewsResponse->getData()->data->reviewers;
         $prodData->complains = $complainsResponse->getData()->data;
         $prodData->histories = $historyResponse->getData()->data;
 
         return response()->json(['status' => 'success', 'message' => 'Data didapatkan', 'data' => $prodData], 200);
+    }
+
+    public function dataProduct(Request $request)
+    {
+        $idShop = $request->input('id_shop');
+        $idProd = $request->input('id_product');
+
+        // generate table name
+        $tableName = $this->generateTableName($idShop);
+
+        // cek apakah toko exist atu tidak
+        $isExistShop = $this->isExistShop($idShop);
+        if ($isExistShop['status'] === 'error') {
+            return response()->json(['status' => 'error', 'message' => 'Toko tidak ditemukan'], 400);
+        }
+
+        // cek apakah produk exist
+        $isExistProd = $this->isExistProduct($tableName, $idProd);
+        if ($isExistProd['status'] === 'error') {
+            return response()->json(['status' => 'error', 'message' => $isExistProd['message']], 400);
+        }
+
+        // get data product
+        $product = DB::table(DB::raw("$tableName as prod"))
+            ->join(DB::raw("0product_categories as ctg"), "ctg.id_cp_prod", "prod.id_cp_prod")
+            ->select("prod.*", "ctg.category_name")
+            ->get()->first();
+
+        // update product photo
+        $product->photo = asset('prods/' . $product->photo);
+
+        return response()->json(['status' => 'success', 'message' => 'Data didapatkan', 'data' => $product], 200);
     }
 
     private function getSpecified(Request $request, $key, $acceptedValue)

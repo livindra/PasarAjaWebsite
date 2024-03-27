@@ -76,6 +76,7 @@ Route::group(['prefix' => '/m'], function () {
     Route::group(['prefix' => 'prod'], function () {
         Route::get('/', [ProductController::class, 'allProducts']);
         Route::post('/create', [ProductController::class, 'createProduct']);
+        Route::get('/data', [ProductController::class, 'dataProduct']);
         Route::get('/details', [ProductController::class, 'detailProduct']);
         Route::get('/hiddens', [ProductController::class, 'hiddenProducts']);
         Route::get('/recommendeds', [ProductController::class, 'recommendedProducts']);
@@ -88,7 +89,7 @@ Route::group(['prefix' => '/m'], function () {
             Route::put('/recommended', [ProductController::class, 'setRecommended']);
         });
         Route::delete('/delete', [ProductController::class, 'deleteProduct']);
-        
+
         // review
         Route::group(['prefix' => '/rvw'], function () {
             Route::get('/', [ProductReviewController::class, 'getAllReview']);
