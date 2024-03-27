@@ -18,11 +18,7 @@ class CategoryController extends Controller
     
         // add path gambar
         foreach ($allCategories as $category) {
-            if (app()->environment('local')) {
-                $category->photo = public_path('categories/') . $category->photo;
-            }else{
-                $category->photo = public_path(base_path('../public_html/public/categories/')) . $category->photo;
-            }
+            $category->photo = asset('categories/' . $category->photo);
         }
     
         return response()->json(['status' => 'success', 'message' => 'Data didapatkan', 'data' => $allCategories], 200);

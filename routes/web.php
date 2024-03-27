@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LayoutsController;
+use App\Http\Controllers\Website\UploadController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,4 +44,10 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 });
 
+Route::get('/upload', [UploadController::class, 'upload'])->name('upload');
+Route::post('/upload/proses', [UploadController::class, 'proses_upload'])->name('upload.proses');
+
 Route::get('/layouts', [LayoutsController::class, 'index']);
+
+Route::get('/dropzone', [UploadController::class, 'dropzone'])->name('dropzone');
+Route::post('/dropzone/store', [UploadController::class, 'dropzone_strore']) ->name('dropzone.store');

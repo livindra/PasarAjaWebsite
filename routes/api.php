@@ -5,9 +5,11 @@ use App\Http\Controllers\Mobile\Auth\MobileAuthController;
 use App\Http\Controllers\Mobile\Auth\VerifyController;
 use App\Http\Controllers\Mobile\Category\CategoryController;
 use App\Http\Controllers\Mobile\Page\ProductMerchantController;
+use App\Http\Controllers\Mobile\Page\PromoMerchantController;
 use App\Http\Controllers\Mobile\Product\ProductController;
 use App\Http\Controllers\Mobile\Product\ProductComplainController;
 use App\Http\Controllers\Mobile\Product\ProductHistoryController;
+use App\Http\Controllers\Mobile\Product\ProductPromoController;
 use App\Http\Controllers\Mobile\Product\ProductReviewController;
 use App\Http\Controllers\Website\ShopController;
 use App\Models\ProductCategories;
@@ -85,7 +87,8 @@ Route::group(['prefix' => '/m'], function () {
             Route::put('/visibility', [ProductController::class, 'setVisibility']);
             Route::put('/recommended', [ProductController::class, 'setRecommended']);
         });
-
+        Route::delete('/delete', [ProductController::class, 'deleteProduct']);
+        
         // review
         Route::group(['prefix' => '/rvw'], function () {
             Route::get('/', [ProductReviewController::class, 'getAllReview']);
@@ -103,6 +106,15 @@ Route::group(['prefix' => '/m'], function () {
         // history
         Route::group(['prefix' => '/hist'], function () {
             Route::get('/prod', [ProductHistoryController::class, 'historyProduct']);
+        });
+
+        // promo
+        Route::group(['prefix' => '/promo'], function(){
+            Route::get('/', [ProductPromoController::class, 'getPromos']);
+            Route::get('/ispromo', [ProductPromoController::class, 'isPromo']);
+            Route::post('/create', [ProductPromoController::class, 'addPromo']);
+            Route::put('/update', [ProductPromoController::class, 'updatePromo']);
+            Route::delete('/delete', [ProductPromoController::class, 'deletePromo']);
         });
     });
 
@@ -124,7 +136,7 @@ Route::group(['prefix' => '/m'], function () {
                 Route::get('/detail', [ProductMerchantController::class, 'detailProduct']);
             });
             Route::group(['prefix' => 'promo'], function () {
-                //
+                Route::get('/active', [PromoMerchantController::class, 'activePromo']);
             });
             Route::group(['prefix' => 'trx'], function () {
                 //
