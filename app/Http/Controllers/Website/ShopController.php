@@ -134,13 +134,11 @@ class ShopController extends Controller
             $table->id('id_promo');
             $table->unsignedBigInteger('id_shop');
             $table->unsignedBigInteger('id_product');
-            $table->integer('default_price');
             $table->integer('promo_price');
+            $table->double('percentage');
             $table->date('start_date');
             $table->date('end_date');
             $table->timestamps();
-            $table->foreign('id_shop')->references('id_shop')
-                ->on('0shops')->onDelete('cascade');
             $table->foreign('id_product')->references('id_product')
                 ->on($tableProd)->onUpdate('cascade')->onDelete('cascade');
         });
