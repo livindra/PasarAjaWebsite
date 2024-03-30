@@ -34,10 +34,12 @@ class ProductReviewController extends Controller
         }
     }
 
+    /// get rating and user review
     public function getReviews(Request $request)
     {
         $idShop = $request->input('id_shop');
         $idProd = $request->input('id_product');
+        $limit = $request->input('limit', 0);
 
         // generate table product and review
         $tableRvw = $this->generateTableReview($idShop);
@@ -74,9 +76,12 @@ class ProductReviewController extends Controller
             ->select('rvw.*', 'prod.product_name', 'us.full_name', 'us.email', 'us.photo')
             ->where('rvw.id_product', $idProd)
             ->orderByDesc('rvw.id_review')
+            ->when($limit !== 0, function ($query) use ($limit) {
+                $query->limit($limit);
+            })
             ->get();
 
-        foreach($reviews as $rvw){
+        foreach ($reviews as $rvw) {
             $rvw->photo = asset('users/' . $rvw->photo);
         }
 
@@ -94,10 +99,13 @@ class ProductReviewController extends Controller
         //
     }
 
+    /// get all user review
     public function getAllReview(Request $request)
     {
         $idShop = $request->input('id_shop');
+        $idProduct = $request->input('id_product', 0);
         $star = $request->input('star', 0);
+        $limit = $request->input('limit', 0);
 
         // generate table product and review
         $tableRvw = $this->generateTableReview($idShop);
@@ -108,11 +116,18 @@ class ProductReviewController extends Controller
             ->join(DB::raw("$tableProd as prod"), 'prod.id_product', 'rvw.id_product')
             ->join('0users as us', 'us.id_user', 'rvw.id_user')
             ->orderByDesc('rvw.id_review')
+            ->when($idProduct !== 0, function ($query) use ($idProduct) {
+                $query->where('prod.id_product', $idProduct);
+            })
+            ->when($limit !== 0, function ($query) use ($limit) {
+                $query->limit($limit);
+            })
             ->when($star > 0 && $star <= 5, function ($query) use ($star) {
-                return $query->where('rvw.star', $star);
+                $query->where('rvw.star', $star);
             })
             ->select('rvw.*', 'prod.product_name', 'us.full_name', 'us.email', 'us.photo')
             ->get();
+
 
         foreach ($getData as $prod) {
             $prod->photo = asset('users/' . $prod->photo);
@@ -126,7 +141,7 @@ class ProductReviewController extends Controller
 
         $idShop = $request->input('id_shop');
         $idCategory = $request->input('id_category', 0);
-        $limit = $request->input('limit', 1000);
+        $limit = $request->input('limit', 0);
 
         // generate table product and review
         $tableRvw = $this->generateTableReview($idShop);
@@ -144,7 +159,12 @@ class ProductReviewController extends Controller
             ->leftJoin(DB::raw("$tableRvw as rvw"), 'prod.id_product', 'rvw.id_product')
             ->groupBy('prod.id_product', 'prod.product_name', 'prod.id_cp_prod', 'prod.photo')
             ->orderByRaw('AVG(rvw.star) DESC')
-            ->limit($limit)
+            ->when($idCategory !== 0, function ($query) use ($idCategory) {
+                $query->where('prod.id_cp_prod', $idCategory);
+            })
+            ->when($limit !== 0, function ($query) use ($limit) {
+                $query->limit($limit);
+            })
             ->get();
 
         foreach ($products as $prod) {

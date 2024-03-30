@@ -137,7 +137,7 @@ class ProductController extends Controller
             'id_cp_prod' => 'required|integer',
             'product_name' => 'required|min:4|max:50',
             'description' => 'nullable|max:250',
-            'unit' => 'required|in:Gram,Kilogram,Ons,Kuintal,Ton,Liter,Milliliter,Sendok,Cangkir,Mangkok,Botol,Karton,Dus,Buah,Ekor',
+            'unit' => 'required|in:Gram,Kilogram,Ons,Kuintal,Ton,Liter,Milliliter,Sendok,Cangkir,Mangkok,Botol,Karton,Dus,Buah,Ekor,Gelas,Piring,Bungkus',
             'selling_unit' => 'required|integer',
             'price' => 'required|integer|min:1',
             'photo' => 'required|file|image|max:512',
@@ -251,7 +251,7 @@ class ProductController extends Controller
             'id_cp_prod' => 'required|integer',
             'product_name' => 'required|min:4|max:50',
             'description' => 'nullable|max:250',
-            'unit' => 'required|in:Gram,Kilogram,Ons,Kuintal,Ton,Liter,Milliliter,Sendok,Cangkir,Mangkok,Botol,Karton,Dus,Buah,Ekor',
+            'unit' => 'required|in:Gram,Kilogram,Ons,Kuintal,Ton,Liter,Milliliter,Sendok,Cangkir,Mangkok,Botol,Karton,Dus,Buah,Ekor,Gelas,Piring,Bungkus',
             'selling_unit' => 'required|integer',
             'price' => 'required|integer|min:1',
             'photo' => 'required|file|image|max:512',
@@ -527,7 +527,7 @@ class ProductController extends Controller
     {
         $idShop = $request->input('id_shop');
         $filter = $request->input('id_category', 0);
-        $limit = $request->input('limit', 1000);
+        $limit = $request->input('limit', 0);
 
         // generate table name
         $tableName = $this->generateTableName($idShop);
@@ -542,7 +542,9 @@ class ProductController extends Controller
                     ->join(DB::raw("0product_categories as ctg"), 'ctg.id_cp_prod', 'prod.id_cp_prod')
                     ->select("prod.*", "ctg.category_name")
                     ->orderBy('product_name', 'asc')
-                    ->limit($limit)
+                    ->when($limit !== 0, function ($query) use ($limit) {
+                        $query->limit($limit);
+                    })
                     ->get();
             } else {
                 // get all product
@@ -551,11 +553,14 @@ class ProductController extends Controller
                     ->select("prod.*", "ctg.category_name")
                     ->orderBy('product_name', 'asc')
                     ->where('id_cp_prod', $filter)
-                    ->limit($limit)
+                    ->when($limit !== 0, function ($query) use ($limit) {
+                        $query->limit($limit);
+                    })
                     ->get();
             }
 
             foreach ($products as $prod) {
+                $prod->product_name = ucwords($prod->product_name);
                 $prod->photo = asset('prods/' . $prod->photo);
             }
 
@@ -576,6 +581,9 @@ class ProductController extends Controller
 
         // generate table name
         $tableName = $this->generateTableName($idShop);
+
+        // limit menjadi 5
+        $request->merge(['limit' => 2]);
 
         // get review product
         $reviewsResponse = $productReview->getReviews($request);
@@ -612,8 +620,15 @@ class ProductController extends Controller
             ->where('id_product', $idProd)
             ->limit(1)->first();
 
+        // get category name
+        $category = ProductCategories::select()
+            ->where('id_cp_prod', $prodData->id_cp_prod)
+            ->limit(1)->first();
+
+        $prodData->product_name = ucwords($prodData->product_name);
         $prodData->photo = asset('prods/' . $prodData->photo);
         $prodData->rating = doubleval($reviewsResponse->getData()->data->rating);
+        $prodData->category_name = $category->category_name;
         $prodData->total_review = $reviewsResponse->getData()->data->total_review;
         $prodData->reviews = $reviewsResponse->getData()->data->reviewers;
         $prodData->complains = $complainsResponse->getData()->data;

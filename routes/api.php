@@ -103,8 +103,8 @@ Route::group(['prefix' => '/m'], function () {
 
         // complain
         Route::group(['prefix' => '/comp'], function () {
-            Route::get('/', [ProductComplainController::class, 'getAllComplains']);
-            Route::get('/prod', [ProductComplainController::class, 'getComplains']);
+            // Route::get('/', [ProductComplainController::class, 'getAllComplains']);
+            Route::get('/', [ProductComplainController::class, 'getComplains']);
         });
 
         // history

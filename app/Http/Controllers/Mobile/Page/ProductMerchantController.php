@@ -173,7 +173,7 @@ class ProductMerchantController extends Controller
         $isExistShop = $this->isExistShop($idShop);
         if ($isExistShop['status'] === 'success') {
             // get complain data
-            $compData = $productComplain->getAllComplains($request)->getData();
+            $compData = $productComplain->getComplains($request)->getData();
 
             // return complain data
             if ($compData->status === 'success') {
