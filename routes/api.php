@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Firebase\FirestoreController;
+use App\Http\Controllers\Firebase\MessagingController;
+use App\Http\Controllers\Firebase\StorageController;
 use App\Http\Controllers\Messenger\MailController;
 use App\Http\Controllers\Mobile\Auth\MobileAuthController;
 use App\Http\Controllers\Mobile\Auth\VerifyController;
@@ -156,4 +159,36 @@ Route::group(['prefix' => 'shop'], function () {
     Route::put('/update', [ShopController::class, 'updateShop']);
     Route::put('/operational', [ShopController::class, 'updateOperational']);
     Route::delete('/delete', [ShopController::class, 'deleteShop']);
+});
+
+
+Route::group(['prefix'=>'/fire'], function(){
+
+    // firebase firestore
+    Route::group(['prefix'=>'/db'], function(){
+        Route::get('/existcc', [FirestoreController::class, 'isExistCollection']);
+        Route::post('/createcc', [FirestoreController::class, 'createCollection']);
+        Route::delete('/deletecc', [FirestoreController::class, 'deleteCollection']);
+        Route::post('/add', [FirestoreController::class, 'addUser']);
+        Route::post('update', [FirestoreController::class, 'updateUser']);
+        Route::delete('/delete', [FirestoreController::class, 'deleteUser']);
+        Route::get('/students', [FirestoreController::class, 'getAllStudent']);
+        Route::get('/existnim', [FirestoreController::class, 'isExistNim']);
+        Route::get('/getid', [FirestoreController::class, 'getDocumentIdByNim']);
+    });
+
+    // firebase storage
+    Route::group(['prefix'=>'/storage'], function(){
+        Route::post('/upload', [StorageController::class, 'uploadImage']);
+        Route::get('/get', [StorageController::class, 'getImagePath']);
+        Route::get('/exist', [StorageController::class, 'isExist']);
+        Route::post('/update', [StorageController::class, 'updateImage']);
+        Route::delete('/delete', [StorageController::class, 'deleteImage']);
+    });
+
+    // firebase messaging
+    Route::group(['prefix'=>'/messaging'], function(){
+        // Route::post('/send', [MessagingController::class, 'sendNotificationrToUser']);
+        Route::post('/send2', [MessagingController::class, 'sendNotification']);
+    });
 });
