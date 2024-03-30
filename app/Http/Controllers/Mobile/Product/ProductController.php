@@ -612,6 +612,7 @@ class ProductController extends Controller
             ->where('id_product', $idProd)
             ->limit(1)->first();
 
+        $prodData->photo = asset('prods/' . $prodData->photo);
         $prodData->rating = doubleval($reviewsResponse->getData()->data->rating);
         $prodData->total_review = $reviewsResponse->getData()->data->total_review;
         $prodData->reviews = $reviewsResponse->getData()->data->reviewers;
