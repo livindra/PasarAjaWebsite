@@ -399,7 +399,7 @@ class ProductController extends Controller
         if ($key !== 'is_shown' && $key !== 'is_available' && $key !== 'is_recommended') {
             return ['status' => 'error', 'message' => 'Key tidak valid'];
         }
-
+    
         // cek apakah produk exist
         $isExistProd = $this->isExistProduct($tableName, $idProd);
         if ($isExistProd['status'] === 'success') {
@@ -408,43 +408,48 @@ class ProductController extends Controller
                 ->select('settings')
                 ->where('id_product', '=', $idProd)
                 ->first();
-
+    
             // jika setting tidak kosong
             if ($settings) {
                 // echo $settings->settings;
-
+    
                 // decode settings
                 $settingsData = json_decode($settings->settings, true);
-
-                // edit value dari key
-                $settingsData[$key] = $value;
-
-                // encode settings
-                $updatedSettings = json_encode($settingsData);
-
-                // validasi data setting
-                $validateSetting = $this->validateSettings($updatedSettings);
-
-                // jika data setting tidak valid
-                if ($validateSetting['status'] === 'error') {
-                    return ['status' => 'error', 'message' => $validateSetting['message']];
-                } else {
-                    // update settings
-                    $isUpdate = DB::table($tableName)
-                        ->where('id_product', $idProd)
-                        ->update(
-                            [
-                                'settings' => $updatedSettings,
-                                'updated_at' => Carbon::now(),
-                            ]
-                        );
-
-                    // jika data berhasil diupdate
-                    if ($isUpdate) {
-                        return ['status' => 'success', 'message' => 'Data berhasil diupdate'];
+    
+                // cek apakah ada perubahan nilai
+                if ($settingsData[$key] !== $value) {
+                    // edit value dari key
+                    $settingsData[$key] = $value;
+    
+                    // encode settings
+                    $updatedSettings = json_encode($settingsData);
+    
+                    // validasi data setting
+                    $validateSetting = $this->validateSettings($updatedSettings);
+    
+                    // jika data setting tidak valid
+                    if ($validateSetting['status'] === 'error') {
+                        return ['status' => 'error', 'message' => $validateSetting['message']];
                     } else {
-                        return ['status' => 'error', 'message' => 'Data gagal diupdate'];
+                        // update settings
+                        $isUpdate = DB::table($tableName)
+                            ->where('id_product', $idProd)
+                            ->update(
+                                [
+                                    'settings' => $updatedSettings,
+                                    'updated_at' => Carbon::now(),
+                                ]
+                            );
+    
+                        // jika data berhasil diupdate
+                        if ($isUpdate) {
+                            return ['status' => 'success', 'message' => 'Data berhasil diupdate'];
+                        } else {
+                            return ['status' => 'error', 'message' => 'Data ' . $key . ' gagal diupdate'];
+                        }
                     }
+                } else {
+                    return ['status' => 'success', 'message' => 'Tidak ada perubahan nilai'];
                 }
             } else {
                 return ['status' => 'error', 'message' => 'Settings tidak ditemukan'];
@@ -453,6 +458,7 @@ class ProductController extends Controller
             return ['status' => 'error', 'message' => 'Product tidak ditemukan'];
         }
     }
+    
 
     public function setStock(Request $request)
     {
@@ -504,7 +510,7 @@ class ProductController extends Controller
         // get data
         $idShop = $request->input('id_shop');
         $idProduk = $request->input('id_product');
-        $recomendedStatus = $request->input('recomended_status');
+        $recomendedStatus = $request->input('recommended_status');
 
         // generate table name
         $tableName = $this->generateTableName($idShop);
@@ -583,7 +589,7 @@ class ProductController extends Controller
         $tableName = $this->generateTableName($idShop);
 
         // limit menjadi 5
-        $request->merge(['limit' => 2]);
+        $request->merge(['limit' => 5]);
 
         // get review product
         $reviewsResponse = $productReview->getReviews($request);

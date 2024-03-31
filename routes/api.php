@@ -138,6 +138,9 @@ Route::group(['prefix' => '/m'], function () {
                 Route::get('/highest', [ProductMerchantController::class, 'highestPage']);
                 Route::get('/selling', [ProductMerchantController::class, 'bestSellingPage']);
                 Route::get('/detail', [ProductMerchantController::class, 'detailProduct']);
+                Route::get('/drvw', [ProductMerchantController::class, 'detailListReview']);
+                Route::get('/dcomp', [ProductMerchantController::class, 'detailListComplain']);
+                Route::get('/dhist', [ProductMerchantController::class, 'detailListHistory']);
             });
             Route::group(['prefix' => 'promo'], function () {
                 Route::get('/active', [PromoMerchantController::class, 'activePromo']);
