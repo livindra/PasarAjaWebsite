@@ -73,12 +73,14 @@ Route::group(['prefix' => '/m'], function () {
 
     Route::group(['prefix' => 'categories'], function () {
         Route::get('/', [CategoryController::class, 'allCategories']);
+        Route::get('/prod', [CategoryController::class, 'allCategoryByProduct']);
     });
 
     // product
     Route::group(['prefix' => 'prod'], function () {
         Route::get('/', [ProductController::class, 'allProducts']);
         Route::post('/create', [ProductController::class, 'createProduct']);
+        Route::get('/units', [ProductController::class, 'getUnits']);
         Route::get('/data', [ProductController::class, 'dataProduct']);
         Route::get('/details', [ProductController::class, 'detailProduct']);
         Route::get('/hiddens', [ProductController::class, 'hiddenProducts']);
@@ -141,6 +143,7 @@ Route::group(['prefix' => '/m'], function () {
                 Route::get('/drvw', [ProductMerchantController::class, 'detailListReview']);
                 Route::get('/dcomp', [ProductMerchantController::class, 'detailListComplain']);
                 Route::get('/dhist', [ProductMerchantController::class, 'detailListHistory']);
+                Route::get('/category', [ProductMerchantController::class, 'listOfCategory']);
             });
             Route::group(['prefix' => 'promo'], function () {
                 Route::get('/active', [PromoMerchantController::class, 'activePromo']);

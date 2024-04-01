@@ -349,5 +349,23 @@ class ProductMerchantController extends Controller
         }
     }
 
+    public function listOfCategory(Request $request, CategoryController $category, ProductController $productController)
+    {
+        $idShop = $request->input('id_shop');
 
+        $isExistShop = $this->isExistShop($idShop);
+        if ($isExistShop['status'] === 'success') {
+            // get category
+            $bestData = $category->allCategoryByProduct($request, $productController)->getData();
+
+            // return category
+            if ($bestData->status === 'success') {
+                return response()->json(['status' => 'success', 'message' => 'Data category didapatkan', 'data' => $bestData->data], 200);
+            } else {
+                return response()->json(['status' => 'error', 'message' => 'Data category gagal didapatkan'], 400);
+            }
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Toko tidak ditemukan'], 400);
+        }
+    }
 }

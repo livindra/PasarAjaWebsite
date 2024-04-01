@@ -173,7 +173,7 @@ class ProductController extends Controller
         $idCategory = $request->input('id_cp_prod');
         $productName = strtolower($request->input('product_name'));
         $description = $request->input('description');
-        // $settings = $request->input('settings');
+        $settings = $request->input('settings');
         $unit = $request->input('unit');
         $sellingUnit = $request->input('selling_unit');
         $price = $request->input('price');
@@ -185,12 +185,12 @@ class ProductController extends Controller
         $tableName = $this->generateTableName($idShop);
 
         // validasi data setting
-        // $validateSetting = $this->validateSettings($settings);
+        $validateSetting = $this->validateSettings($settings);
 
         // jika data setting tidak valid
-        // if ($validateSetting['status'] === 'error') {
-        //     return response()->json(['status' => 'error', 'message' => $validateSetting['message']], 400);
-        // }
+        if ($validateSetting['status'] === 'error') {
+            return response()->json(['status' => 'error', 'message' => $validateSetting['message']], 400);
+        }
 
         // cek apakah toko ada atau tidak didalam database
         $isExistShop = $this->isExistShop($idShop);
@@ -221,7 +221,7 @@ class ProductController extends Controller
                 'id_cp_prod' => $idCategory,
                 'product_name' => $productName,
                 'description' => $description,
-                // 'settings' => $settings,
+                'settings' => $settings,
                 'unit' => $unit,
                 'selling_unit' => $sellingUnit,
                 'price' => $price,
@@ -527,6 +527,33 @@ class ProductController extends Controller
         } else {
             return response()->json($update, 400);
         }
+    }
+
+    public function getUnits()
+    {
+        $units = [
+            'Pilih Unit',
+            'Gram',
+            'Kilogram',
+            'Ons',
+            'Kuintal',
+            'Ton',
+            'Liter',
+            'Milliliter',
+            'Sendok',
+            'Cangkir',
+            'Bungkus',
+            'Mangkok',
+            'Botol',
+            'Karton',
+            'Dus',
+            'Buah',
+            'Ekor',
+            'Gelas',
+            'Piring'
+        ];
+
+        return response()->json(['status' => 'success', 'message'=> 'data diambil', 'data'=>$units]);
     }
 
     public function allProducts(Request $request)
