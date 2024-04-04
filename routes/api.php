@@ -132,6 +132,8 @@ Route::group(['prefix' => '/m'], function () {
         Route::put('/cbcus', [TransactionController::class, 'cancelByCustomer']);
         Route::put('/cbmer', [TransactionController::class, 'cancelByMerchant']);
         Route::put('/cftrx', [TransactionController::class, 'confirmTrx']);
+        Route::put('/ittrx', [TransactionController::class, 'inTakingTrx']);
+        Route::put('/submittedTrx', [TransactionController::class, 'submittedTrx']);
         Route::put('/fstrx', [TransactionController::class, 'finishTrx']);
     });
 
@@ -177,6 +179,7 @@ Route::group(['prefix' => 'shop'], function () {
     Route::put('/operational', [ShopController::class, 'updateOperational']);
     Route::delete('/delete', [ShopController::class, 'deleteShop']);
     Route::get('/contact', [ShopController::class, 'getContact']);
+    Route::get('/data', [ShopController::class, 'getShopData']);
 });
 
 

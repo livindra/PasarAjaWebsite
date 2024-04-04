@@ -154,7 +154,7 @@ class ShopController extends Controller
             $table->unsignedBigInteger('id_user');
             $table->text('order_code')->unique();
             $table->string('order_pin', 4);
-            $table->enum('status', ['Request', 'Cancel_Customer', 'Cancel_Merchant', 'Ongoing', 'Expired', 'Success']);
+            $table->enum('status', ['Request', 'Cancel_Customer', 'Cancel_Merchant', 'Confirmed', 'InTaking', 'Submitted', 'Expired', 'Finished']);
             $table->date('taken_date');
             $table->bigInteger('expiration_time');
             $table->integer('confirmed_by');
@@ -404,6 +404,23 @@ class ShopController extends Controller
         } else {
             return response()->json(['status' => 'error', 'message' => 'ID Toko tidak ditemukan'], 400);
         }
+    }
+
+    public function getShopData(Request $request, Shops $shops)
+    {
+        $idShop = $request->input('id_shop');
+
+        $shopData = $shops
+            ->select()
+            ->where('id_shop', $idShop)
+            ->first();
+
+        if (!$shopData) {
+            return response()->json(['status' => 'error', 'message' => 'Shop not found'], 404);
+        }
+        
+        $shopData->photo = asset('shops/' . $shopData->photo);
+        return response()->json(['status' => 'success', 'message' => 'data dapat',  'data' => $shopData], 200);
     }
 
     public function getContact(Request $request)
