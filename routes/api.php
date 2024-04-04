@@ -133,7 +133,7 @@ Route::group(['prefix' => '/m'], function () {
         Route::put('/cbmer', [TransactionController::class, 'cancelByMerchant']);
         Route::put('/cftrx', [TransactionController::class, 'confirmTrx']);
         Route::put('/ittrx', [TransactionController::class, 'inTakingTrx']);
-        Route::put('/submittedTrx', [TransactionController::class, 'submittedTrx']);
+        Route::put('/sbtTrx', [TransactionController::class, 'submittedTrx']);
         Route::put('/fstrx', [TransactionController::class, 'finishTrx']);
     });
 
