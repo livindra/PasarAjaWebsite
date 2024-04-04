@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Shops;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
@@ -75,7 +76,7 @@ class ShopController extends Controller
             $table->string('product_name', 50)->unique();
             $table->text('description')->nullable();
             $table->integer('selling_unit');
-            $table->enum('unit', ['Gram','Kilogram','Ons','Kuintal','Ton','Liter','Milliliter','Sendok','Cangkir','Bungkus','Mangkok','Botol','Karton','Dus','Buah','Ekor','Gelas','Piring']);
+            $table->enum('unit', ['Gram', 'Kilogram', 'Ons', 'Kuintal', 'Ton', 'Liter', 'Milliliter', 'Sendok', 'Cangkir', 'Bungkus', 'Mangkok', 'Botol', 'Karton', 'Dus', 'Buah', 'Ekor', 'Gelas', 'Piring']);
             $table->integer('price');
             $table->smallInteger('total_sold')->default(0);
             $table->text('settings')->nullable()->default('{"is_recommended": false, "is_shown": true, "is_available": true}');
@@ -160,7 +161,7 @@ class ShopController extends Controller
             $table->text('canceled_message');
             $table->timestamps();
             $table->foreign('id_user')->references('id_user')
-            ->on('0users')->onDelete('cascade');
+                ->on('0users')->onDelete('cascade');
         });
     }
 
@@ -403,5 +404,18 @@ class ShopController extends Controller
         } else {
             return response()->json(['status' => 'error', 'message' => 'ID Toko tidak ditemukan'], 400);
         }
+    }
+
+    public function getContact(Request $request)
+    {
+        $idiShop = $request->input('id_shop');
+
+        $contact = DB::table('0shops as sp')
+            ->join('0users as ussr', 'ussr.id_user', 'sp.id_user')
+            ->select('ussr.phone_number', 'ussr.email')
+            ->where('sp.id_shop', $idiShop)
+            ->first();
+
+        return response()->json(['status' => 'success', 'message' => 'Data didapatkan', 'data' => $contact], 200);
     }
 }

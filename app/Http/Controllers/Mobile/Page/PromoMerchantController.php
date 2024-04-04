@@ -8,11 +8,12 @@ use Illuminate\Http\Request;
 
 class PromoMerchantController extends Controller
 {
-    public function activePromo(Request $request, ProductPromoController $promoController)
+    public function listOfPromo(Request $request, ProductPromoController $promoController)
     {
         $request->input('id_shop');
+        $type = $request->input('type');
 
-        $request->merge(['type' => 'active']);
+        $request->merge(['type' => $type]);
         $activeData = $promoController->getPromos($request)->getData();
 
         if ($activeData->status === 'success') {

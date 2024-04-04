@@ -14,6 +14,7 @@ use App\Http\Controllers\Mobile\Product\ProductComplainController;
 use App\Http\Controllers\Mobile\Product\ProductHistoryController;
 use App\Http\Controllers\Mobile\Product\ProductPromoController;
 use App\Http\Controllers\Mobile\Product\ProductReviewController;
+use App\Http\Controllers\Mobile\Transaction\TransactionController;
 use App\Http\Controllers\Website\ShopController;
 use App\Models\ProductCategories;
 use Illuminate\Http\Request;
@@ -115,7 +116,7 @@ Route::group(['prefix' => '/m'], function () {
         });
 
         // promo
-        Route::group(['prefix' => '/promo'], function(){
+        Route::group(['prefix' => '/promo'], function () {
             Route::get('/', [ProductPromoController::class, 'getPromos']);
             Route::get('/ispromo', [ProductPromoController::class, 'isPromo']);
             Route::post('/create', [ProductPromoController::class, 'addPromo']);
@@ -124,7 +125,17 @@ Route::group(['prefix' => '/m'], function () {
         });
     });
 
-    Route::group(['prefix' => 'page'], function () {
+    Route::group(['prefix' => 'trx'], function () {
+        Route::get('/', [TransactionController::class, 'listOfTrx']);
+        Route::get('/e', [TransactionController::class, 'trxDetail']);
+        Route::post('/crtrx', [TransactionController::class, 'createTrx']);
+        Route::put('/cbcus', [TransactionController::class, 'cancelByCustomer']);
+        Route::put('/cbmer', [TransactionController::class, 'cancelByMerchant']);
+        Route::put('/cftrx', [TransactionController::class, 'confirmTrx']);
+        Route::put('/fstrx', [TransactionController::class, 'finishTrx']);
+    });
+
+    Route::group(['prefix' => '/page'], function () {
         // merchant
         Route::group(['prefix' => 'merchant'], function () {
             Route::group(['prefix' => 'home'], function () {
@@ -146,7 +157,7 @@ Route::group(['prefix' => '/m'], function () {
                 Route::get('/category', [ProductMerchantController::class, 'listOfCategory']);
             });
             Route::group(['prefix' => 'promo'], function () {
-                Route::get('/active', [PromoMerchantController::class, 'activePromo']);
+                Route::get('/', [PromoMerchantController::class, 'listOfPromo']);
             });
             Route::group(['prefix' => 'trx'], function () {
                 //
@@ -165,13 +176,14 @@ Route::group(['prefix' => 'shop'], function () {
     Route::put('/update', [ShopController::class, 'updateShop']);
     Route::put('/operational', [ShopController::class, 'updateOperational']);
     Route::delete('/delete', [ShopController::class, 'deleteShop']);
+    Route::get('/contact', [ShopController::class, 'getContact']);
 });
 
 
-Route::group(['prefix'=>'/fire'], function(){
+Route::group(['prefix' => '/fire'], function () {
 
     // firebase firestore
-    Route::group(['prefix'=>'/db'], function(){
+    Route::group(['prefix' => '/db'], function () {
         Route::get('/existcc', [FirestoreController::class, 'isExistCollection']);
         Route::post('/createcc', [FirestoreController::class, 'createCollection']);
         Route::delete('/deletecc', [FirestoreController::class, 'deleteCollection']);
@@ -184,7 +196,7 @@ Route::group(['prefix'=>'/fire'], function(){
     });
 
     // firebase storage
-    Route::group(['prefix'=>'/storage'], function(){
+    Route::group(['prefix' => '/storage'], function () {
         Route::post('/upload', [StorageController::class, 'uploadImage']);
         Route::get('/get', [StorageController::class, 'getImagePath']);
         Route::get('/exist', [StorageController::class, 'isExist']);
@@ -193,7 +205,7 @@ Route::group(['prefix'=>'/fire'], function(){
     });
 
     // firebase messaging
-    Route::group(['prefix'=>'/messaging'], function(){
+    Route::group(['prefix' => '/messaging'], function () {
         // Route::post('/send', [MessagingController::class, 'sendNotificationrToUser']);
         Route::post('/send2', [MessagingController::class, 'sendNotification']);
     });
