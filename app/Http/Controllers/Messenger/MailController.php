@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OtpVerify;
 use App\Mail\MailMessage;
+use App\Mail\OrderRequest;
 use App\Models\User;
 use App\Models\Verification;
 
@@ -86,7 +87,7 @@ class MailController extends Controller
 
             if (!empty($email)) {
                 $emailValue = $email[0]['email'];
-            } 
+            }
 
             // Mengatur properti objek $ver
             $ver->email = $emailValue;
@@ -123,5 +124,14 @@ class MailController extends Controller
         } else {
             return response()->json(['status' => 'error', 'message' => 'Nomor HP tidak terdaftar'], 400);
         }
+    }
+
+
+    public function sendOrderRequest($email, $orderData)
+    {
+        // Mengirim email
+        Mail::to($email)->send(new OrderRequest($orderData));
+
+        return response()->json(['status' => 'success', 'message' => 'Email berhasil terkirim'], 200);
     }
 }
