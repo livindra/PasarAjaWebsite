@@ -9,6 +9,7 @@ use App\Http\Controllers\Mobile\Auth\MobileAuthController;
 use App\Http\Controllers\Mobile\Product\ProductController;
 use App\Http\Controllers\Website\ShopController;
 use App\Mail\CustomerRejected;
+use App\Mail\MerchantRejected;
 use App\Mail\OrderRequest;
 use App\Models\RefreshToken;
 use App\Models\Shops;
@@ -581,13 +582,13 @@ class TransactionController extends Controller
                 Mail::to($contactData->data->email)->send(new CustomerRejected($trxData));
             }
 
-            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dibatalkan', 'data' => $trxData], 200);
+            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dibatalkan'], 200);
         } else {
-            return response()->json(['status' => 'success', 'message' => 'Gagal membatalkan pesanan'], 400);
+            return response()->json(['status' => 'error', 'message' => 'Gagal membatalkan pesanan'], 400);
         }
     }
 
-    public function cancelByMerchant(Request $request, ShopController $shopController)
+    public function cancelByMerchant(Request $request, ShopController $shopController, Shops $shops)
     {
 
         // validasi data
@@ -643,6 +644,13 @@ class TransactionController extends Controller
         $trxData->rejected_reason = $rejectedReason;
         $trxData->rejected_message = $rejectedMessage;
 
+        // get shop data
+        $shopData = $shopController->getShopData($request, $shops)->getData();
+        if ($shopData->status === 'error') {
+            return response()->json(['status' => 'error', 'message' => $shopData['message']], 400);
+        }
+        $trxData->shop_data = $shopData->data;
+
         // put new data
         $newData = [
             'status' => 'Cancel_Merchant',
@@ -651,19 +659,23 @@ class TransactionController extends Controller
         ];
 
         // update data transaksi
-        // $isUpdate = DB::table($tableTrx)
-        //     ->where('order_code', $orderCode)
-        //     ->update($newData);
+        $isUpdate = DB::table($tableTrx)
+            ->where('order_code', $orderCode)
+            ->update($newData);
 
         // // cek apakah pembatalan berhasil
-        // if ($isUpdate) {
+        if ($isUpdate) {
 
-            // get user contact
+            // get shop contact
+            $contactData = $shopController->getContact($request)->getData();
+            if ($contactData->status === 'success') {
+                Mail::to($trxData->user_data->email)->send(new MerchantRejected($trxData));
+            }
 
-        //     return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dibatalkan', 'data' => $trxData], 200);
-        // } else {
-        //     return response()->json(['status' => 'success', 'message' => 'Gagal membatalkan pesanan'], 400);
-        // }
+            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dibatalkan'], 200);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Gagal membatalkan pesanan'], 400);
+        }
     }
 
     public function confirmTrx(Request $request)

@@ -71,9 +71,7 @@
         <div class="order-info">
             <h2>Informasi Pesanan</h2>
             <p><strong>Transaksi ID:</strong> {{ $data->order_id }}</p>
-            <p><strong>Kode Transaksi:</strong> {{ $data->order_code }}</p>
             <p><strong>PIN Pesanan:</strong> {{ $data->order_pin }}</p>
-            <p><strong>Status:</strong> {{ $data->status }}</p>
             <p><strong>Total Produk:</strong> {{ $data->total_product }}</p>
             <p><strong>Sub Total:Rp.</strong> {{ $data->sub_total }}</p>
             <p><strong>Total Promo:Rp.{{ $data->total_promo }}</p>
@@ -128,12 +126,12 @@
             </table>
         </div>
 
-        <div class="user-data">
-            <h2>Informasi Pembeli</h2>
-            <img src="{{ $data->user_data->user_photo }}" alt="User Photo">
-            <p><strong>Nama Lengkap:</strong> {{ $data->user_data->full_name }}</p>
-            <p><strong>Email:</strong> {{ $data->user_data->email }}</p>
-            <p><strong>Nomor HP:</strong> {{ $data->user_data->phone_number }}</p>
+        <div class="shop-data">
+            <h2>Informasi Toko</h2>
+            <img src="{{ $data->shop_data->photo }}" alt="Foto Toko">
+            <p><strong>Nama Toko:</strong> {{ $data->shop_data->shop_name }}</p>
+            <p><strong>Nomor HP:</strong> {{ $data->shop_data->phone_number }}</p>
+            <p><strong>Lokasi:</strong> {{ $data->shop_data->benchmark }}</p>
         </div>
     </div>
 </body>
