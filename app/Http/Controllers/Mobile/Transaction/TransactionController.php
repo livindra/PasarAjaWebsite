@@ -10,6 +10,7 @@ use App\Http\Controllers\Mobile\Product\ProductController;
 use App\Http\Controllers\Website\ShopController;
 use App\Mail\CustomerRejected;
 use App\Mail\MerchantRejected;
+use App\Mail\OrderConfirmed;
 use App\Mail\OrderRequest;
 use App\Models\RefreshToken;
 use App\Models\Shops;
@@ -560,6 +561,7 @@ class TransactionController extends Controller
         $trxData = $trx->data;
         $trxData->rejected_reason = $rejectedReason;
         $trxData->rejected_message = $rejectedMessage;
+        $trxData->status = 'Cancel_Customer';
 
         // put new data
         $newData = [
@@ -643,6 +645,7 @@ class TransactionController extends Controller
         $trxData = $trx->data;
         $trxData->rejected_reason = $rejectedReason;
         $trxData->rejected_message = $rejectedMessage;
+        $trxData->status = 'Cancel_Merchant';
 
         // get shop data
         $shopData = $shopController->getShopData($request, $shops)->getData();
@@ -663,24 +666,116 @@ class TransactionController extends Controller
             ->where('order_code', $orderCode)
             ->update($newData);
 
-        // // cek apakah pembatalan berhasil
+        // cek apakah pembatalan berhasil
         if ($isUpdate) {
-
-            // get shop contact
-            $contactData = $shopController->getContact($request)->getData();
-            if ($contactData->status === 'success') {
-                Mail::to($trxData->user_data->email)->send(new MerchantRejected($trxData));
-            }
-
+            // return response & send email to user
+            Mail::to($trxData->user_data->email)->send(new MerchantRejected($trxData));
             return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dibatalkan'], 200);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Gagal membatalkan pesanan'], 400);
         }
     }
 
-    public function confirmTrx(Request $request)
+    public function confirmTrx(Request $request, ShopController $shopController, Shops $shops)
     {
-        return response()->json(['status' => 'success', 'message' => 'Test of Confirm Trx'], 200);
+        // validasi data
+        $validator = Validator::make($request->all(), [
+            'id_shop' => 'required|integer',
+            'order_code' => 'required',
+        ], [
+            'id_shop' => 'Id Toko tidak valid.',
+            'order_code' => 'Order code harus diisi.',
+        ]);
+
+        // cek validasi
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 400);
+        }
+
+        $idShop = $request->input('id_shop');
+        $orderCode = $request->input('order_code');
+
+        $tableTrx = $this->generateTableTrx($idShop);
+        $tableDtl = $this->generateTableDtl($idShop);
+
+        // cek toko exist atau tidak
+        $isExistShop = $this->isExistShop($idShop);
+        if ($isExistShop['status'] === 'error') {
+            return response()->json(['status' => 'success', 'message' => $isExistShop['message']], 404);
+        }
+
+        // cek apakah transaksi exist atau tidak
+        $isExistTrx = $this->isExistTrx($idShop, $orderCode);
+        if ($isExistTrx['status'] === 'error') {
+            return response()->json(['status' => 'success', 'message' => $isExistTrx['message']], 404);
+        }
+
+        // get transaction by order code
+        $trx = $this->trxDetail($request)->getData();
+
+        // jika transaction gagal didapatkan
+        if ($trx->status === 'error') {
+            return response()->json(['status' => 'error', 'message' => $trx->message], 400);
+        }
+
+        // get data
+        $trxData = $trx->data;
+
+        // get expiration confirmed
+        $expTime = $trxData->expiration_time;
+        $millisNow = Carbon::now()->timestamp * 1000;
+
+        // cek apakah pesanan sudah kadaluarsa atau belum
+        if($millisNow > $expTime){
+            return response()->json(['status' => 'error', 'message' => 'Pesanan telah melewati batas waktu konfirmasi (kadaluarsa)'], 400);
+        }
+
+        // get shop data
+        $shopData = $shopController->getShopData($request, $shops)->getData();
+        if ($shopData->status === 'error') {
+            return response()->json(['status' => 'error', 'message' => $shopData['message']], 400);
+        }
+
+        // update expiration time
+        $expTaken = Carbon::now()->addHours(24)->timestamp * 1000;
+        $expDate = Carbon::createFromTimestamp($expTaken / 1000);
+
+        // add shop data and new exp time
+        $trxData->shop_data = $shopData->data;
+        $trxData->expiration_time = $expTaken;
+        $trxData->expiration_date = $expDate;
+        $trxData->status = 'Confirmed';
+
+        // put new data
+        $newData = [
+            'status' => 'Confirmed',
+            'expiration_time' => $expTaken,
+            'updated_at' => Carbon::now(),
+        ];
+
+        // update data transaksi
+        $isUpdate = DB::table($tableTrx)
+            ->where('order_code', $orderCode)
+            ->update($newData);
+
+        // cek apakah pembatalan berhasil
+        if ($isUpdate) {
+            // return response & send email to user
+            Mail::to($trxData->user_data->email)->send(new OrderConfirmed($trxData));
+            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dikonfirmasi', 'data'=>$trxData], 200);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Gagal mengkonfirmasi pesanan'], 400);
+        }
+    }
+
+    public function inTakingTrx(Request $request)
+    {
+        return response()->json(['status' => 'success', 'message' => 'Test of InTaking Trx'], 200);
+    }
+
+    public function submittedTrx(Request $request)
+    {
+        return response()->json(['status' => 'success', 'message' => 'Test of Submitted Trx'], 200);
     }
 
     public function finishTrx(Request $request)
