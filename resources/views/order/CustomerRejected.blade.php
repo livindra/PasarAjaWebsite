@@ -67,7 +67,7 @@
 
 <body>
     <div class="container">
-        <h1>Pesanan Dibatalkan {{ $data->order_id }}</h1>
+        <h1>Pesanaan Dibatalkan {{ $data->order_id }}</h1>
         <div class="order-info">
             <h2>Informasi Pesanan</h2>
             <p><strong>Transaksi ID:</strong> {{ $data->order_id }}</p>
@@ -80,6 +80,13 @@
             <p><strong>Total Harga:Rp.{{ $data->total_price }}</p>
             <p><strong>Pesanaan Diambil:</strong> {{ $data->taken_date }}</p>
             <p><strong>Pesanaan Dibuat:</strong> {{ $data->created_at }}</p>
+        </div>
+
+        <div class="rejected-detail">
+            <h2>Rician Pembatalan</h2>
+            <p><strong>Alasan Pembatalan:</strong> {{ $data->rejected_reason }}</p>
+            <p><strong>Pesan Pembatalan:</strong> {{ $data->rejected_message }}</p>
+            <p><strong>Dibatalkan Pada:</strong> {{ $data->updated_at }}</p>
         </div>
 
         <div class="order-details">

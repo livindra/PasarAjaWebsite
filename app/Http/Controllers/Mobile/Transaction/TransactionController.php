@@ -8,6 +8,7 @@ use App\Http\Controllers\Messenger\MailController;
 use App\Http\Controllers\Mobile\Auth\MobileAuthController;
 use App\Http\Controllers\Mobile\Product\ProductController;
 use App\Http\Controllers\Website\ShopController;
+use App\Mail\CustomerRejected;
 use App\Mail\OrderRequest;
 use App\Models\RefreshToken;
 use App\Models\Shops;
@@ -141,7 +142,7 @@ class TransactionController extends Controller
                 if ($details->isEmpty()) {
                     return response()->json(['status' => 'error', 'message' => 'Detail produk tidak ditemukan'], 400);
                 }
-                
+
 
                 // hitung rician pesaanan
                 $totalProd = 0;
@@ -475,24 +476,19 @@ class TransactionController extends Controller
                         }
                     }
 
-                    // setelah transaksi berhasil dibuat dan detail produk ditambahkan,
-                    // kirim email ke penjual
-                    // echo 'kirimdd';
-                    $contactData = $shopController->getContact($request)->getData();
-                    if ($contactData->status === 'success') {
-                        // echo ' kontak temu';
-                        $merchantMail = $contactData->data->email;
-                        // echo 'email -> ' . $merchantMail;
-                        // get data detail transaksi
-                        $nReq = new Request();
-                        $nReq->merge(['id_shop' => $idShop, 'order_code' => $orderCode]);
-                        $detailTrx = $this->trxDetail($nReq);
+                    // get data detail transaksi
+                    $nReq = new Request();
+                    $nReq->merge(['id_shop' => $idShop, 'order_code' => $orderCode]);
+                    $detailTrx = $this->trxDetail($nReq)->getData();
 
-                        if ($detailTrx->status() === 200 && $detailTrx->getData()->status === 'success') {
-                            // setelah data transaksi didapatkan, kirim email
-                            $detailData = $detailTrx->getData()->data; // Mengakses properti 'data' dari objek hasil getData()
-                            // echo $contactData->email; // test, untuk memeriksa order_id
-                            Mail::to($merchantMail)->send(new OrderRequest($detailData));
+                    // jika data detail trx berhasil didapatkan
+                    if ($detailTrx->status === 'success') {
+                        // get shop contact
+                        $contactData = $shopController->getContact($request)->getData();
+                        if ($contactData->status === 'success') {
+                            // send notif and data transaction
+                            $detailData = $detailTrx->data;
+                            Mail::to($contactData->data->email)->send(new OrderRequest($detailData));
                         }
                     }
 
@@ -508,23 +504,175 @@ class TransactionController extends Controller
         }
     }
 
-    public function cancelByCustomer(Request $request)
+    public function cancelByCustomer(Request $request, ShopController $shopController)
     {
-        return response()->json(['status'=>'success', 'message'=>'Test of Cancel by Customer'], 200);
+
+        // validasi data
+        $validator = Validator::make($request->all(), [
+            'id_shop' => 'required|integer',
+            'order_code' => 'required',
+            'reason' => 'required',
+            'message' => 'required'
+        ], [
+            'id_shop' => 'Id Toko tidak valid.',
+            'order_code' => 'Order code harus diisi.',
+            'reason' => 'Alasan harus diisi',
+            'message' => 'Pesan pembatalan harus diisi'
+        ]);
+
+        // cek validasi
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 400);
+        }
+
+        $idShop = $request->input('id_shop');
+        $orderCode = $request->input('order_code');
+        $rejectedReason = $request->input('reason');
+        $rejectedMessage = $request->input('message');
+
+        $message = $rejectedReason . '/' . $rejectedMessage;
+
+        $tableTrx = $this->generateTableTrx($idShop);
+        $tableDtl = $this->generateTableDtl($idShop);
+
+        // cek toko exist atau tidak
+        $isExistShop = $this->isExistShop($idShop);
+        if ($isExistShop['status'] === 'error') {
+            return response()->json(['status' => 'success', 'message' => $isExistShop['message']], 404);
+        }
+
+        // cek apakah transaksi exist atau tidak
+        $isExistTrx = $this->isExistTrx($idShop, $orderCode);
+        if ($isExistTrx['status'] === 'error') {
+            return response()->json(['status' => 'success', 'message' => $isExistTrx['message']], 404);
+        }
+
+        // get transaction by order code
+        $trx = $this->trxDetail($request)->getData();
+
+        // jika transaction gagal didapatkan
+        if ($trx->status === 'error') {
+            return response()->json(['status' => 'error', 'message' => $trx->message], 400);
+        }
+
+        // get data of transaction & add rejected detail
+        $trxData = $trx->data;
+        $trxData->rejected_reason = $rejectedReason;
+        $trxData->rejected_message = $rejectedMessage;
+
+        // put new data
+        $newData = [
+            'status' => 'Cancel_Customer',
+            'canceled_message' => $message,
+            'updated_at' => Carbon::now(),
+        ];
+
+        // update data transaksi
+        $isUpdate = DB::table($tableTrx)
+            ->where('order_code', $orderCode)
+            ->update($newData);
+
+        // cek apakah pembatalan berhasil
+        if ($isUpdate) {
+
+            // get shop contact
+            $contactData = $shopController->getContact($request)->getData();
+            if ($contactData->status === 'success') {
+                Mail::to($contactData->data->email)->send(new CustomerRejected($trxData));
+            }
+
+            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dibatalkan', 'data' => $trxData], 200);
+        } else {
+            return response()->json(['status' => 'success', 'message' => 'Gagal membatalkan pesanan'], 400);
+        }
     }
 
-    public function cancelByMerchant(Request $request)
+    public function cancelByMerchant(Request $request, ShopController $shopController)
     {
-        return response()->json(['status'=>'success', 'message'=>'Test of Merchant'], 200);
+
+        // validasi data
+        $validator = Validator::make($request->all(), [
+            'id_shop' => 'required|integer',
+            'order_code' => 'required',
+            'reason' => 'required',
+            'message' => 'required'
+        ], [
+            'id_shop' => 'Id Toko tidak valid.',
+            'order_code' => 'Order code harus diisi.',
+            'reason' => 'Alasan harus diisi',
+            'message' => 'Pesan pembatalan harus diisi'
+        ]);
+
+        // cek validasi
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 400);
+        }
+
+        $idShop = $request->input('id_shop');
+        $orderCode = $request->input('order_code');
+        $rejectedReason = $request->input('reason');
+        $rejectedMessage = $request->input('message');
+
+        $message = $rejectedReason . '/' . $rejectedMessage;
+
+        $tableTrx = $this->generateTableTrx($idShop);
+        $tableDtl = $this->generateTableDtl($idShop);
+
+        // cek toko exist atau tidak
+        $isExistShop = $this->isExistShop($idShop);
+        if ($isExistShop['status'] === 'error') {
+            return response()->json(['status' => 'success', 'message' => $isExistShop['message']], 404);
+        }
+
+        // cek apakah transaksi exist atau tidak
+        $isExistTrx = $this->isExistTrx($idShop, $orderCode);
+        if ($isExistTrx['status'] === 'error') {
+            return response()->json(['status' => 'success', 'message' => $isExistTrx['message']], 404);
+        }
+
+        // get transaction by order code
+        $trx = $this->trxDetail($request)->getData();
+
+        // jika transaction gagal didapatkan
+        if ($trx->status === 'error') {
+            return response()->json(['status' => 'error', 'message' => $trx->message], 400);
+        }
+
+        // get data of transaction & add rejected detail
+        $trxData = $trx->data;
+        $trxData->rejected_reason = $rejectedReason;
+        $trxData->rejected_message = $rejectedMessage;
+
+        // put new data
+        $newData = [
+            'status' => 'Cancel_Merchant',
+            'canceled_message' => $message,
+            'updated_at' => Carbon::now(),
+        ];
+
+        // update data transaksi
+        // $isUpdate = DB::table($tableTrx)
+        //     ->where('order_code', $orderCode)
+        //     ->update($newData);
+
+        // // cek apakah pembatalan berhasil
+        // if ($isUpdate) {
+
+            // get user contact
+
+        //     return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dibatalkan', 'data' => $trxData], 200);
+        // } else {
+        //     return response()->json(['status' => 'success', 'message' => 'Gagal membatalkan pesanan'], 400);
+        // }
     }
 
     public function confirmTrx(Request $request)
     {
-        return response()->json(['status'=>'success', 'message'=>'Test of Confirm Trx'], 200);
+        return response()->json(['status' => 'success', 'message' => 'Test of Confirm Trx'], 200);
     }
 
     public function finishTrx(Request $request)
     {
-        return response()->json(['status'=>'success', 'message'=>'Test of Finish Trx'], 200);
+        return response()->json(['status' => 'success', 'message' => 'Test of Finish Trx'], 200);
     }
 }

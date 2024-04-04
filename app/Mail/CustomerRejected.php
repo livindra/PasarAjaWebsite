@@ -5,9 +5,11 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class OrderRequest extends Mailable
+class CustomerRejected extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -25,8 +27,8 @@ class OrderRequest extends Mailable
     {
         return $this
             ->from(env('MAIL_FROM_ADDRESS', 'hakiahmad756@gmail.com'))
-            ->subject('Pesanan baru ' . $this->data->order_id . ' Menunggu Konfirmasi')
-            ->view('order.request')
-            ->with('data', $this->data);
+            ->subject('Pesanan Dibatalkan ' . $this->data->order_id . ' Oleh Pembeli')
+            ->view('order.customerrejected')
+            ->with('data', $this->data); 
     }
 }
