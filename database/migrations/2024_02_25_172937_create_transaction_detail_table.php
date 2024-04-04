@@ -16,7 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('id_trx');
             $table->unsignedBigInteger('id_product');
             $table->smallInteger('quantity');
-            $table->integer('total_price');
+            $table->integer('promo_price');
+            $table->string('notes', 100)->nullable();
             $table->foreign('id_trx')->references('id_trx')
                 ->on('sp_1_trx')->onDelete('cascade');
             $table->foreign('id_product')->references('id_product')

@@ -146,6 +146,69 @@ class ProductMerchantController extends Controller
         }
     }
 
+    public function detailListReview(Request $request, ProductReviewController $review)
+    {
+        $idShop = $request->input('id_shop');
+        $idShop = $request->input('id_product');
+
+        $isExistShop = $this->isExistShop($idShop);
+        if ($isExistShop['status'] === 'success') {
+            // get list review
+            $revData = $review->getAllReview($request)->getData();
+
+            // return list review
+            if ($revData->status === 'success') {
+                return response()->json(['status' => 'success', 'message' => 'Data list review didapatkan', 'data' => $revData->data], 200);
+            } else {
+                return response()->json(['status' => 'error', 'message' => 'Data list review gagal didapatkan'], 400);
+            }
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Toko tidak ditemukan'], 400);
+        }
+    }
+
+    public function detailListComplain(Request $request, ProductComplainController $complain)
+    {
+        $idShop = $request->input('id_shop');
+        $idShop = $request->input('id_product');
+
+        $isExistShop = $this->isExistShop($idShop);
+        if ($isExistShop['status'] === 'success') {
+            // get list comp
+            $compData = $complain->getComplains($request)->getData();
+
+            // return list comp
+            if ($compData->status === 'success') {
+                return response()->json(['status' => 'success', 'message' => 'Data list complain didapatkan', 'data' => $compData->data], 200);
+            } else {
+                return response()->json(['status' => 'error', 'message' => 'Data list complain gagal didapatkan'], 400);
+            }
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Toko tidak ditemukan'], 404);
+        }
+    }
+
+    public function detailListHistory(Request $request, ProductHistoryController $history)
+    {
+        $idShop = $request->input('id_shop');
+        $idShop = $request->input('id_product');
+
+        $isExistShop = $this->isExistShop($idShop);
+        if ($isExistShop['status'] === 'success') {
+            // get list history
+            $histData = $history->historyProduct($request)->getData();
+
+            // return list history
+            if ($histData->status === 'success') {
+                return response()->json(['status' => 'success', 'message' => 'Data list history didapatkan', 'data' => $histData->data], 200);
+            } else {
+                return response()->json(['status' => 'error', 'message' => 'Data list history gagal didapatkan'], 400);
+            }
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Toko tidak ditemukan'], 404);
+        }
+    }
+
     public function reviewPage(Request $request, ProductReviewController $productReview)
     {
         $idShop = $request->input('id_shop');
@@ -173,7 +236,7 @@ class ProductMerchantController extends Controller
         $isExistShop = $this->isExistShop($idShop);
         if ($isExistShop['status'] === 'success') {
             // get complain data
-            $compData = $productComplain->getAllComplains($request)->getData();
+            $compData = $productComplain->getComplains($request)->getData();
 
             // return complain data
             if ($compData->status === 'success') {
@@ -280,6 +343,26 @@ class ProductMerchantController extends Controller
                 return response()->json(['status' => 'success', 'message' => 'Data terlaris didapatkan', 'data' => $bestData->data], 200);
             } else {
                 return response()->json(['status' => 'error', 'message' => 'Data terlaris gagal didapatkan'], 400);
+            }
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Toko tidak ditemukan'], 400);
+        }
+    }
+
+    public function listOfCategory(Request $request, CategoryController $category, ProductController $productController)
+    {
+        $idShop = $request->input('id_shop');
+
+        $isExistShop = $this->isExistShop($idShop);
+        if ($isExistShop['status'] === 'success') {
+            // get category
+            $bestData = $category->allCategoryByProduct($request, $productController)->getData();
+
+            // return category
+            if ($bestData->status === 'success') {
+                return response()->json(['status' => 'success', 'message' => 'Data category didapatkan', 'data' => $bestData->data], 200);
+            } else {
+                return response()->json(['status' => 'error', 'message' => 'Data category gagal didapatkan'], 400);
             }
         } else {
             return response()->json(['status' => 'error', 'message' => 'Toko tidak ditemukan'], 400);

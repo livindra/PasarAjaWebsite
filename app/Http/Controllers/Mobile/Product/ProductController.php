@@ -137,7 +137,7 @@ class ProductController extends Controller
             'id_cp_prod' => 'required|integer',
             'product_name' => 'required|min:4|max:50',
             'description' => 'nullable|max:250',
-            'unit' => 'required|in:Gram,Kilogram,Ons,Kuintal,Ton,Liter,Milliliter,Sendok,Cangkir,Mangkok,Botol,Karton,Dus,Buah,Ekor',
+            'unit' => 'required|in:Gram,Kilogram,Ons,Kuintal,Ton,Liter,Milliliter,Sendok,Cangkir,Mangkok,Botol,Karton,Dus,Buah,Ekor,Gelas,Piring,Bungkus',
             'selling_unit' => 'required|integer',
             'price' => 'required|integer|min:1',
             'photo' => 'required|file|image|max:512',
@@ -173,7 +173,7 @@ class ProductController extends Controller
         $idCategory = $request->input('id_cp_prod');
         $productName = strtolower($request->input('product_name'));
         $description = $request->input('description');
-        // $settings = $request->input('settings');
+        $settings = $request->input('settings');
         $unit = $request->input('unit');
         $sellingUnit = $request->input('selling_unit');
         $price = $request->input('price');
@@ -185,12 +185,12 @@ class ProductController extends Controller
         $tableName = $this->generateTableName($idShop);
 
         // validasi data setting
-        // $validateSetting = $this->validateSettings($settings);
+        $validateSetting = $this->validateSettings($settings);
 
         // jika data setting tidak valid
-        // if ($validateSetting['status'] === 'error') {
-        //     return response()->json(['status' => 'error', 'message' => $validateSetting['message']], 400);
-        // }
+        if ($validateSetting['status'] === 'error') {
+            return response()->json(['status' => 'error', 'message' => $validateSetting['message']], 400);
+        }
 
         // cek apakah toko ada atau tidak didalam database
         $isExistShop = $this->isExistShop($idShop);
@@ -221,7 +221,7 @@ class ProductController extends Controller
                 'id_cp_prod' => $idCategory,
                 'product_name' => $productName,
                 'description' => $description,
-                // 'settings' => $settings,
+                'settings' => $settings,
                 'unit' => $unit,
                 'selling_unit' => $sellingUnit,
                 'price' => $price,
@@ -251,7 +251,7 @@ class ProductController extends Controller
             'id_cp_prod' => 'required|integer',
             'product_name' => 'required|min:4|max:50',
             'description' => 'nullable|max:250',
-            'unit' => 'required|in:Gram,Kilogram,Ons,Kuintal,Ton,Liter,Milliliter,Sendok,Cangkir,Mangkok,Botol,Karton,Dus,Buah,Ekor',
+            'unit' => 'required|in:Gram,Kilogram,Ons,Kuintal,Ton,Liter,Milliliter,Sendok,Cangkir,Mangkok,Botol,Karton,Dus,Buah,Ekor,Gelas,Piring,Bungkus',
             'selling_unit' => 'required|integer',
             'price' => 'required|integer|min:1',
             'photo' => 'required|file|image|max:512',
@@ -399,7 +399,7 @@ class ProductController extends Controller
         if ($key !== 'is_shown' && $key !== 'is_available' && $key !== 'is_recommended') {
             return ['status' => 'error', 'message' => 'Key tidak valid'];
         }
-
+    
         // cek apakah produk exist
         $isExistProd = $this->isExistProduct($tableName, $idProd);
         if ($isExistProd['status'] === 'success') {
@@ -408,43 +408,48 @@ class ProductController extends Controller
                 ->select('settings')
                 ->where('id_product', '=', $idProd)
                 ->first();
-
+    
             // jika setting tidak kosong
             if ($settings) {
                 // echo $settings->settings;
-
+    
                 // decode settings
                 $settingsData = json_decode($settings->settings, true);
-
-                // edit value dari key
-                $settingsData[$key] = $value;
-
-                // encode settings
-                $updatedSettings = json_encode($settingsData);
-
-                // validasi data setting
-                $validateSetting = $this->validateSettings($updatedSettings);
-
-                // jika data setting tidak valid
-                if ($validateSetting['status'] === 'error') {
-                    return ['status' => 'error', 'message' => $validateSetting['message']];
-                } else {
-                    // update settings
-                    $isUpdate = DB::table($tableName)
-                        ->where('id_product', $idProd)
-                        ->update(
-                            [
-                                'settings' => $updatedSettings,
-                                'updated_at' => Carbon::now(),
-                            ]
-                        );
-
-                    // jika data berhasil diupdate
-                    if ($isUpdate) {
-                        return ['status' => 'success', 'message' => 'Data berhasil diupdate'];
+    
+                // cek apakah ada perubahan nilai
+                if ($settingsData[$key] !== $value) {
+                    // edit value dari key
+                    $settingsData[$key] = $value;
+    
+                    // encode settings
+                    $updatedSettings = json_encode($settingsData);
+    
+                    // validasi data setting
+                    $validateSetting = $this->validateSettings($updatedSettings);
+    
+                    // jika data setting tidak valid
+                    if ($validateSetting['status'] === 'error') {
+                        return ['status' => 'error', 'message' => $validateSetting['message']];
                     } else {
-                        return ['status' => 'error', 'message' => 'Data gagal diupdate'];
+                        // update settings
+                        $isUpdate = DB::table($tableName)
+                            ->where('id_product', $idProd)
+                            ->update(
+                                [
+                                    'settings' => $updatedSettings,
+                                    'updated_at' => Carbon::now(),
+                                ]
+                            );
+    
+                        // jika data berhasil diupdate
+                        if ($isUpdate) {
+                            return ['status' => 'success', 'message' => 'Data berhasil diupdate'];
+                        } else {
+                            return ['status' => 'error', 'message' => 'Data ' . $key . ' gagal diupdate'];
+                        }
                     }
+                } else {
+                    return ['status' => 'success', 'message' => 'Tidak ada perubahan nilai'];
                 }
             } else {
                 return ['status' => 'error', 'message' => 'Settings tidak ditemukan'];
@@ -453,6 +458,7 @@ class ProductController extends Controller
             return ['status' => 'error', 'message' => 'Product tidak ditemukan'];
         }
     }
+    
 
     public function setStock(Request $request)
     {
@@ -504,7 +510,7 @@ class ProductController extends Controller
         // get data
         $idShop = $request->input('id_shop');
         $idProduk = $request->input('id_product');
-        $recomendedStatus = $request->input('recomended_status');
+        $recomendedStatus = $request->input('recommended_status');
 
         // generate table name
         $tableName = $this->generateTableName($idShop);
@@ -523,11 +529,38 @@ class ProductController extends Controller
         }
     }
 
+    public function getUnits()
+    {
+        $units = [
+            'Pilih Unit',
+            'Gram',
+            'Kilogram',
+            'Ons',
+            'Kuintal',
+            'Ton',
+            'Liter',
+            'Milliliter',
+            'Sendok',
+            'Cangkir',
+            'Bungkus',
+            'Mangkok',
+            'Botol',
+            'Karton',
+            'Dus',
+            'Buah',
+            'Ekor',
+            'Gelas',
+            'Piring'
+        ];
+
+        return response()->json(['status' => 'success', 'message'=> 'data diambil', 'data'=>$units]);
+    }
+
     public function allProducts(Request $request)
     {
         $idShop = $request->input('id_shop');
         $filter = $request->input('id_category', 0);
-        $limit = $request->input('limit', 1000);
+        $limit = $request->input('limit', 0);
 
         // generate table name
         $tableName = $this->generateTableName($idShop);
@@ -542,7 +575,9 @@ class ProductController extends Controller
                     ->join(DB::raw("0product_categories as ctg"), 'ctg.id_cp_prod', 'prod.id_cp_prod')
                     ->select("prod.*", "ctg.category_name")
                     ->orderBy('product_name', 'asc')
-                    ->limit($limit)
+                    ->when($limit !== 0, function ($query) use ($limit) {
+                        $query->limit($limit);
+                    })
                     ->get();
             } else {
                 // get all product
@@ -551,11 +586,14 @@ class ProductController extends Controller
                     ->select("prod.*", "ctg.category_name")
                     ->orderBy('product_name', 'asc')
                     ->where('id_cp_prod', $filter)
-                    ->limit($limit)
+                    ->when($limit !== 0, function ($query) use ($limit) {
+                        $query->limit($limit);
+                    })
                     ->get();
             }
 
             foreach ($products as $prod) {
+                $prod->product_name = ucwords($prod->product_name);
                 $prod->photo = asset('prods/' . $prod->photo);
             }
 
@@ -576,6 +614,9 @@ class ProductController extends Controller
 
         // generate table name
         $tableName = $this->generateTableName($idShop);
+
+        // limit menjadi 5
+        $request->merge(['limit' => 5]);
 
         // get review product
         $reviewsResponse = $productReview->getReviews($request);
@@ -612,8 +653,15 @@ class ProductController extends Controller
             ->where('id_product', $idProd)
             ->limit(1)->first();
 
+        // get category name
+        $category = ProductCategories::select()
+            ->where('id_cp_prod', $prodData->id_cp_prod)
+            ->limit(1)->first();
+
+        $prodData->product_name = ucwords($prodData->product_name);
         $prodData->photo = asset('prods/' . $prodData->photo);
         $prodData->rating = doubleval($reviewsResponse->getData()->data->rating);
+        $prodData->category_name = $category->category_name;
         $prodData->total_review = $reviewsResponse->getData()->data->total_review;
         $prodData->reviews = $reviewsResponse->getData()->data->reviewers;
         $prodData->complains = $complainsResponse->getData()->data;

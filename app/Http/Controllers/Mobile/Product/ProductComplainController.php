@@ -34,7 +34,8 @@ class ProductComplainController extends Controller
     public function getComplains(Request $request)
     {
         $idShop = $request->input('id_shop');
-        $idProd = $request->input('id_product');
+        $idProd = $request->input('id_product', 0);
+        $limit = $request->input('limit', 0);
 
         // generate table product and complain
         $tableComp = $this->generateTableComp($idShop);
@@ -51,8 +52,13 @@ class ProductComplainController extends Controller
             ->join(DB::raw("$tableProd as prod"), 'prod.id_product', 'comp.id_product')
             ->join('0users as us', 'us.id_user', 'comp.id_user')
             ->select('comp.*', 'prod.product_name', 'prod.photo as product_photo', 'us.full_name', 'us.email', 'us.photo as user_photo')
-            ->where('comp.id_product', $idProd)
             ->orderByDesc('comp.id_complain')
+            ->when($idProd !== 0, function ($query) use ($idProd) {
+                $query->where('comp.id_product', $idProd);
+            })
+            ->when($limit !== 0, function ($query) use ($limit) {
+                $query->limit($limit);
+            })
             ->get();
 
         foreach ($complains as $prod) {
@@ -63,27 +69,4 @@ class ProductComplainController extends Controller
         return response()->json(['status' => 'success', 'message' => 'data didapatkan', 'data' => $complains], 200);
     }
 
-    public function getAllComplains(Request $request)
-    {
-        $idShop = $request->input('id_shop');
-
-        // generate table product and complain
-        $tableComp = $this->generateTableComp($idShop);
-        $tableProd = $this->generateTableProd($idShop);
-
-        // get complain data
-        $complains = DB::table(DB::raw("$tableComp AS comp"))
-            ->join(DB::raw("$tableProd as prod"), 'prod.id_product', 'comp.id_product')
-            ->join('0users as us', 'us.id_user', 'comp.id_user')
-            ->select('comp.*', 'prod.product_name', 'prod.photo as product_photo', 'us.full_name', 'us.email', 'us.photo as user_photo')
-            ->orderByDesc('comp.id_complain')
-            ->get();
-
-        foreach ($complains as $prod) {
-            $prod->product_photo = asset('prods/' . $prod->product_photo);
-            $prod->user_photo = asset('users/' . $prod->user_photo);
-        }
-
-        return response()->json(['status' => 'success', 'message' => 'Data berhasil diambil', 'data' => $complains]);
-    }
 }

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('product_name', 50)->unique();
             $table->text('description')->nullable();
             $table->integer('selling_unit');
-            $table->enum('unit', ['Gram', 'Kilogram', 'Ons', 'Kuintal', 'Ton', 'Liter', 'Milliliter', 'Sendok', 'Cangkir', 'Bungkus', 'Mangkok', 'Botol', 'Karton', 'Dus', 'Buah', 'Ekor']);
+            $table->enum('unit', ['Gram','Kilogram','Ons','Kuintal','Ton','Liter','Milliliter','Sendok','Cangkir','Bungkus','Mangkok','Botol','Karton','Dus','Buah','Ekor','Gelas','Piring']);
             $table->integer('price');
             $table->smallInteger('total_sold')->default(0);
             $table->text('settings')->nullable()->default('{"is_recommended": false, "is_shown": true, "is_available": true}');

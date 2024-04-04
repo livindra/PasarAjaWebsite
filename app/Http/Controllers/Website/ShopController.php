@@ -75,7 +75,7 @@ class ShopController extends Controller
             $table->string('product_name', 50)->unique();
             $table->text('description')->nullable();
             $table->integer('selling_unit');
-            $table->enum('unit', ['Gram', 'Kilogram', 'Ons', 'Kuintal', 'Ton', 'Liter', 'Milliliter', 'Sendok', 'Cangkir', 'Bungkus', 'Mangkok', 'Botol', 'Karton', 'Dus', 'Buah', 'Ekor']);
+            $table->enum('unit', ['Gram','Kilogram','Ons','Kuintal','Ton','Liter','Milliliter','Sendok','Cangkir','Bungkus','Mangkok','Botol','Karton','Dus','Buah','Ekor','Gelas','Piring']);
             $table->integer('price');
             $table->smallInteger('total_sold')->default(0);
             $table->text('settings')->nullable()->default('{"is_recommended": false, "is_shown": true, "is_available": true}');
@@ -153,16 +153,14 @@ class ShopController extends Controller
             $table->unsignedBigInteger('id_user');
             $table->text('order_code')->unique();
             $table->string('order_pin', 4);
-            $table->enum('status', ['Request', 'Accepted', 'Rejected']);
-            $table->smallInteger('total_product');
-            $table->integer('total_price');
+            $table->enum('status', ['Request', 'Cancel_Customer', 'Cancel_Merchant', 'Ongoing', 'Expired', 'Success']);
             $table->date('taken_date');
             $table->bigInteger('expiration_time');
             $table->integer('confirmed_by');
-            $table->text('rejected_message');
+            $table->text('canceled_message');
             $table->timestamps();
             $table->foreign('id_user')->references('id_user')
-                ->on('0users')->onDelete('cascade');
+            ->on('0users')->onDelete('cascade');
         });
     }
 
@@ -175,11 +173,12 @@ class ShopController extends Controller
             $table->unsignedBigInteger('id_trx');
             $table->unsignedBigInteger('id_product');
             $table->smallInteger('quantity');
-            $table->integer('total_price');
+            $table->integer('promo_price');
+            $table->string('notes', 100)->nullable();
             $table->foreign('id_trx')->references('id_trx')
-                ->on($tableTrx)->onDelete('cascade');
+                ->on('sp_1_trx')->onDelete('cascade');
             $table->foreign('id_product')->references('id_product')
-                ->on($tableProd)->onDelete('cascade');
+                ->on('sp_1_prod')->onDelete('cascade');
         });
     }
 

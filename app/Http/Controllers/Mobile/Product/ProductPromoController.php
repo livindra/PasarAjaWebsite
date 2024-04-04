@@ -216,6 +216,11 @@ class ProductPromoController extends Controller
             ->where("id_product", $idProd)
             ->limit(1)->first();
 
+        // harga promo harus min rp. 1
+        if ($promoPrice <= 0) {
+            return response()->json(['status' => 'error', 'message' => 'Harga promo minimal Rp. 1'], 400);
+        }
+
         // cek apakah harga promo < harga asli produk
         if ($promoPrice >= $productData->price) {
             return response()->json(['status' => 'error', 'message' => 'Harga promo harus kurang dari harga product'], 400);
@@ -275,14 +280,14 @@ class ProductPromoController extends Controller
     public function updatePromo(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            "id_promo" => "required|numeric",
             "id_shop" => "required|numeric",
-            "id_product" => "required|numeric",
             'promo_price' => 'required|numeric',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
         ], [
+            'id_promo' => 'Id Promo tidak valid',
             'id_shop' => 'Id Toko tidak valid',
-            'id_product' => 'Id Product tidak valid',
             'promo_price.required' => 'Harga promo harus diisi.',
             'promo_price.numeric' => 'Harga promo harus berupa integer.',
             'start_date.required' => 'Tanggal awal promo harus diisi.',
@@ -295,8 +300,8 @@ class ProductPromoController extends Controller
             return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 400);
         }
 
+        $idPromo = $request->input('id_promo');
         $idShop = $request->input('id_shop');
-        $idProd = $request->input('id_product');
         $promoPrice = $request->input('promo_price');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
@@ -311,15 +316,28 @@ class ProductPromoController extends Controller
         }
 
         // cek apakah product exist atau tidak
-        $isExistProd = $this->isExistProduct($tableProd, $idProd);
-        if ($isExistProd['status'] === 'error') {
-            return response()->json(['status' => 'error', 'message' => 'Product tidak ditemukan'], 400);
-        }
+        // $isExistProd = $this->isExistProduct($tableProd, $idProd);
+        // if ($isExistProd['status'] === 'error') {
+        //     return response()->json(['status' => 'error', 'message' => 'Product tidak ditemukan'], 400);
+        // }
+
+        // get product
+        $productData = DB::table(DB::raw("$tablePromo as promo"))
+            ->join(DB::raw("$tableProd as prod"), 'prod.id_product', 'promo.id_product')
+            ->select('prod.*')
+            ->limit(1)->first();
+
+        //
 
         // get product data
-        $productData = DB::table($tableProd)->select()
-            ->where("id_product", $idProd)
-            ->limit(1)->first();
+        // $productData = DB::table($tableProd)->select()
+        //     ->where("id_product", $idProd)
+        //     ->limit(1)->first();
+
+        // harga promo harus min rp. 1
+        if ($promoPrice <= 0) {
+            return response()->json(['status' => 'error', 'message' => 'Harga promo minimal Rp. 1'], 400);
+        }
 
         // cek apakah harga promo < harga asli produk
         if ($promoPrice >= $productData->price) {
@@ -361,7 +379,6 @@ class ProductPromoController extends Controller
 
         // put data
         $data = [
-            "id_product" => $idProd,
             "promo_price" => $promoPrice,
             "percentage" => $formattedPercentage,
             "start_date" => $startDate,
@@ -371,7 +388,7 @@ class ProductPromoController extends Controller
 
         // save data
         $updateData = DB::table($tablePromo)
-            ->where("id_product", $idProd)
+            ->where("id_promo", $idPromo)
             ->update($data);
 
         // return response
