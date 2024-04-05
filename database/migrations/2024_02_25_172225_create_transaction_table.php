@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_user');
             $table->text('order_code')->unique();
             $table->string('order_pin', 4);
-            $table->enum('status', ['Request', 'Cancel_Customer', 'Cancel_Merchant', 'Ongoing', 'Expired', 'Success']);
+            $table->enum('status', ['Request', 'Cancel_Customer', 'Cancel_Merchant', 'Confirmed', 'InTaking', 'Submitted', 'Expired', 'Finished']);
             $table->date('taken_date');
             $table->bigInteger('expiration_time');
             $table->integer('confirmed_by');
