@@ -19,6 +19,7 @@ class ProductComplainSeeder extends Seeder
                 [
                     'id_user' => 1,
                     'id_shop' => 1,
+                    'id_trx' => 1,
                     'id_product' => 1,
                     'reason' => 'makanannya ga enak',
                     'created_at' => Carbon::now(),
@@ -27,6 +28,7 @@ class ProductComplainSeeder extends Seeder
                 [
                     'id_user' => 1,
                     'id_shop' => 1,
+                    'id_trx' => 1,
                     'id_product' => 2,
                     'reason' => 'makanannya udah basi',
                     'created_at' => Carbon::now(),
