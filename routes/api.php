@@ -111,6 +111,10 @@ Route::group(['prefix' => '/m'], function () {
         Route::group(['prefix' => '/comp'], function () {
             // Route::get('/', [ProductComplainController::class, 'getAllComplains']);
             Route::get('/', [ProductComplainController::class, 'getComplains']);
+            Route::get('/is', [ProductComplainController::class, 'isComplain']);
+            Route::post('/add', [ProductComplainController::class, 'addComplain']);
+            Route::put('/update', [ProductComplainController::class, 'updateComplain']);
+            Route::delete('/delete', [ProductComplainController::class, 'deleteComplain']);
         });
 
         // history

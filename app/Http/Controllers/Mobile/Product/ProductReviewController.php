@@ -318,6 +318,9 @@ class ProductReviewController extends Controller
             ->select()
             ->where('id_trx', $idTrx)
             ->first();
+        if (is_null($trxData)) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal mendapatkan data transaksi'], 400);
+        }
 
         // jika data transaksi berhasil didapatkan
         // jika tanggal trx sudah lebih dari 7 hari maka sudah tidak bisa update rvw
@@ -346,10 +349,7 @@ class ProductReviewController extends Controller
         } else {
             return response()->json(['status' => 'error', 'message' => 'Transaksi sudah lebih dari 7 hari, tidak bisa mengedit review'], 400);
         }
-        if ($trxData) {
-        } else {
-            return response()->json(['status' => 'error', 'message' => 'Transaksi tidak ditemukan'], 404);
-        }
+
     }
 
     public function deleteReview(Request $request)
