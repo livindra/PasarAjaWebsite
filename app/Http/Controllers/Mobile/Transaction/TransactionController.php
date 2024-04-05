@@ -179,6 +179,7 @@ class TransactionController extends Controller
                 ->where('id_user', $trxData->id_user)
                 ->select(
                     [
+                        'ussr.id_user',
                         'ussr.full_name',
                         'ussr.email',
                         'ussr.phone_number',

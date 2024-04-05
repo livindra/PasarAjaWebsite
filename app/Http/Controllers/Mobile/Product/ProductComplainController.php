@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\DB;
 
 class ProductComplainController extends Controller
 {
+
+    public function generateTableTrx($idShop)
+    {
+        return 'sp_' . $idShop . '_trx';
+    }
+
     public function generateTableComp($idShop)
     {
         return 'sp_' . $idShop . '_comp';
@@ -40,6 +46,7 @@ class ProductComplainController extends Controller
         // generate table product and complain
         $tableComp = $this->generateTableComp($idShop);
         $tableProd = $this->generateTableProd($idShop);
+        $tableTrx = $this->generateTableTrx($idShop);
 
         // cek apakah toko ada atau tidak didalam database
         $isExistShop = $this->isExistShop($idShop);
@@ -51,7 +58,8 @@ class ProductComplainController extends Controller
         $complains = DB::table(DB::raw("$tableComp as comp"))
             ->join(DB::raw("$tableProd as prod"), 'prod.id_product', 'comp.id_product')
             ->join('0users as us', 'us.id_user', 'comp.id_user')
-            ->select('comp.*', 'prod.product_name', 'prod.photo as product_photo', 'us.full_name', 'us.email', 'us.photo as user_photo')
+            ->join(DB::raw("$tableTrx as trx"), 'trx.id_trx', 'comp.id_trx')
+            ->select('comp.*', 'prod.product_name', 'prod.photo as product_photo', 'us.full_name', 'us.email', 'us.photo as user_photo', 'trx.updated_at as order_date')
             ->orderByDesc('comp.id_complain')
             ->when($idProd !== 0, function ($query) use ($idProd) {
                 $query->where('comp.id_product', $idProd);

@@ -101,7 +101,10 @@ Route::group(['prefix' => '/m'], function () {
             Route::get('/', [ProductReviewController::class, 'getAllReview']);
             Route::get('/prod', [ProductReviewController::class, 'getReviews']);
             Route::post('/add', [ProductReviewController::class, 'addReview']);
+            Route::put('/update', [ProductReviewController::class, 'updateReview']);
+            Route::delete('/delete', [ProductReviewController::class, 'deleteReview']);
             Route::get('/highest', [ProductReviewController::class, 'getHighestReview']);
+            Route::get('/is', [ProductReviewController::class, 'isReview']);
         });
 
         // complain
