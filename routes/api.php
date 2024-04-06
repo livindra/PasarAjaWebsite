@@ -7,6 +7,7 @@ use App\Http\Controllers\Messenger\MailController;
 use App\Http\Controllers\Mobile\Auth\MobileAuthController;
 use App\Http\Controllers\Mobile\Auth\VerifyController;
 use App\Http\Controllers\Mobile\Category\CategoryController;
+use App\Http\Controllers\Mobile\Page\OrderMerchantController;
 use App\Http\Controllers\Mobile\Page\ProductMerchantController;
 use App\Http\Controllers\Mobile\Page\PromoMerchantController;
 use App\Http\Controllers\Mobile\Product\ProductController;
@@ -169,7 +170,7 @@ Route::group(['prefix' => '/m'], function () {
                 Route::get('/', [PromoMerchantController::class, 'listOfPromo']);
             });
             Route::group(['prefix' => 'trx'], function () {
-                //
+                Route::get('/', [OrderMerchantController::class, 'listOfTrx']);
             });
         });
 
