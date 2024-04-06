@@ -230,8 +230,15 @@ class ProductReviewController extends Controller
 
         // get data
         $trxData = $trx->data;
+
+        // cek apakah id user cocok
         if ($trxData->user_data->id_user !== $idUser) {
             return response()->json(['status' => 'error', 'message' => 'ID user tidak cocok'], 400);
+        }
+
+        // jika transaksi belum selesai
+        if ($trxData->status !== 'Finished') {
+            return response()->json(['status' => 'error', 'message' => 'Tidak bisa review karena transaksi belum selesai'], 400);
         }
 
         // jika tanggal trx sudah lebih dari 7 hari maka sudah tidak bisa add rvw
@@ -265,7 +272,7 @@ class ProductReviewController extends Controller
 
                 // return response
                 if ($addData) {
-                    return response()->json(['status' => 'success', 'message' => 'Review berhasil ditambahkan'], 200);
+                    return response()->json(['status' => 'success', 'message' => 'Review berhasil ditambahkan'], 201);
                 } else {
                     return response()->json(['status' => 'error', 'message' => 'Gagal membuat review'], 404);
                 }
@@ -278,12 +285,14 @@ class ProductReviewController extends Controller
     public function updateReview(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'id_review' => 'required|integer',
             'id_trx' => 'required|integer',
             'id_shop' => 'required|integer',
             'id_product' => 'required|integer',
             'star' => 'required|integer|between:1,5',
             'comment' => 'nullable|string|max:100',
         ], [
+            'id_review' => 'ID Review harus diisi',
             'id_trx' => 'ID Trx tidak valid.',
             'id_shop' => 'ID shop tidak valid.',
             'id_product' => 'ID product tidak valid.',
@@ -297,6 +306,7 @@ class ProductReviewController extends Controller
             return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 400);
         }
 
+        $idRvw = $request->input('id_review');
         $idTrx = $request->input('id_trx');
         $idShop = $request->input('id_shop');
         $idProduct = $request->input('id_product');
@@ -336,6 +346,7 @@ class ProductReviewController extends Controller
 
             // update review
             $updateData = DB::table($tableRvw)
+                ->where('id_review', $idRvw)
                 ->where('id_trx', $idTrx)
                 ->where('id_product', $idProduct)
                 ->update($data);
@@ -349,11 +360,11 @@ class ProductReviewController extends Controller
         } else {
             return response()->json(['status' => 'error', 'message' => 'Transaksi sudah lebih dari 7 hari, tidak bisa mengedit review'], 400);
         }
-
     }
 
     public function deleteReview(Request $request)
     {
+        $idReview = $request->input('id_review');
         $idTrx = $request->input('id_trx');
         $idShop = $request->input('id_shop');
         $idProd = $request->input('id_product');
@@ -377,6 +388,7 @@ class ProductReviewController extends Controller
 
                 // menghapus rvw
                 $isDelete = DB::table($tableRvw)
+                    ->where('id_review', $idReview)
                     ->where('id_trx', $idTrx)
                     ->where('id_product', $idProd)
                     ->delete();

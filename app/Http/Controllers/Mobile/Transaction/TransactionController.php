@@ -840,7 +840,7 @@ class TransactionController extends Controller
 
             // return response & send email to user
             Mail::to($trxData->user_data->email)->send(new OrderConfirmed($trxData));
-            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dikonfirmasi', 'data' => $trxData], 200);
+            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dikonfirmasi'], 200);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Gagal mengkonfirmasi pesanan'], 400);
         }
@@ -935,7 +935,7 @@ class TransactionController extends Controller
                 // return response & send email to merchant
                 Mail::to($contactData->data->email)->send(new InTaking($trxData));
             }
-            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil diupdate', 'data' => $trxData], 200);
+            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil diupdate'], 200);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Gagal update pesanan'], 400);
         }
@@ -1032,7 +1032,7 @@ class TransactionController extends Controller
 
             // return response & send email to merchant
             Mail::to($trxData->user_data->email)->send(new Submitted($trxData));
-            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil diserahkan', 'data' => $trxData], 200);
+            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil diserahkan'], 200);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyerahkan pesanan'], 400);
         }
@@ -1121,7 +1121,7 @@ class TransactionController extends Controller
                 // return response & send email to merchant
                 Mail::to($contactData->data->email)->send(new Finished($trxData));
             }
-            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil diselesaikan', 'data' => $trxData], 200);
+            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil diselesaikan'], 200);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyelesaikan pesanan'], 400);
         }
