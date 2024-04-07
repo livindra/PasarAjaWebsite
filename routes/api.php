@@ -7,6 +7,7 @@ use App\Http\Controllers\Messenger\MailController;
 use App\Http\Controllers\Mobile\Auth\MobileAuthController;
 use App\Http\Controllers\Mobile\Auth\VerifyController;
 use App\Http\Controllers\Mobile\Category\CategoryController;
+use App\Http\Controllers\Mobile\Page\OrderMerchantController;
 use App\Http\Controllers\Mobile\Page\ProductMerchantController;
 use App\Http\Controllers\Mobile\Page\PromoMerchantController;
 use App\Http\Controllers\Mobile\Product\ProductController;
@@ -101,13 +102,20 @@ Route::group(['prefix' => '/m'], function () {
             Route::get('/', [ProductReviewController::class, 'getAllReview']);
             Route::get('/prod', [ProductReviewController::class, 'getReviews']);
             Route::post('/add', [ProductReviewController::class, 'addReview']);
+            Route::put('/update', [ProductReviewController::class, 'updateReview']);
+            Route::delete('/delete', [ProductReviewController::class, 'deleteReview']);
             Route::get('/highest', [ProductReviewController::class, 'getHighestReview']);
+            Route::get('/is', [ProductReviewController::class, 'isReview']);
         });
 
         // complain
         Route::group(['prefix' => '/comp'], function () {
             // Route::get('/', [ProductComplainController::class, 'getAllComplains']);
             Route::get('/', [ProductComplainController::class, 'getComplains']);
+            Route::get('/is', [ProductComplainController::class, 'isComplain']);
+            Route::post('/add', [ProductComplainController::class, 'addComplain']);
+            Route::put('/update', [ProductComplainController::class, 'updateComplain']);
+            Route::delete('/delete', [ProductComplainController::class, 'deleteComplain']);
         });
 
         // history
@@ -162,7 +170,7 @@ Route::group(['prefix' => '/m'], function () {
                 Route::get('/', [PromoMerchantController::class, 'listOfPromo']);
             });
             Route::group(['prefix' => 'trx'], function () {
-                //
+                Route::get('/', [OrderMerchantController::class, 'listOfTrx']);
             });
         });
 

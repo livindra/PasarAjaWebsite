@@ -17,10 +17,10 @@ class ProductPromoSeeder extends Seeder
         DB::table('sp_1_promo')->insert(
             [
                 [
-                    'id_shop' => 1,
+                    'id_promo' => 1,
                     'id_product' => 1,
-                    'default_price' => 10000,
                     'promo_price' => 9000,
+                    'percentage' => 11.5,
                     'start_date' => '2019-10-20',
                     'end_date' => '2019-10-29',
                     'created_at' => Carbon::now(),

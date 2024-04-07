@@ -103,6 +103,8 @@ class TransactionController extends Controller
     {
         $idShop = $request->input('id_shop');
         $code = $request->input('order_code');
+        $showUsData = $request->input('user_data', true);
+        $showSpData = $request->input('shop_data', false);
 
         $isExist = $this->isExistTrx($idShop, $code);
 
@@ -174,19 +176,35 @@ class TransactionController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Data transaksi gagal didapatkan'], 400);
             }
 
-            // get user data
-            $userData = DB::table('0users as ussr')
-                ->where('id_user', $trxData->id_user)
-                ->select(
-                    [
-                        'ussr.full_name',
-                        'ussr.email',
-                        'ussr.phone_number',
-                        DB::raw("CONCAT('" . asset('users') . "/', ussr.photo) as user_photo"),
-                    ]
-                )->first();
+            if ($showUsData) {
+                // get user data
+                $userData = DB::table('0users as ussr')
+                    ->where('id_user', $trxData->id_user)
+                    ->select(
+                        [
+                            'ussr.id_user',
+                            'ussr.full_name',
+                            'ussr.email',
+                            'ussr.phone_number',
+                            DB::raw("CONCAT('" . asset('users') . "/', ussr.photo) as user_photo"),
+                        ]
+                    )->first();
 
-            $trxData->user_data = $userData;
+                if ($userData) {
+                    $trxData->user_data = $userData;
+                }
+            }
+
+
+            if ($showSpData) {
+                // get shop data
+                $shopCont = new ShopController();
+                $shopData = $shopCont->getShopData($request, new Shops())->getData();
+
+                if ($shopData) {
+                    $trxData->shop_data = $shopData->data;
+                }
+            }
 
             return response()->json(['status' => 'success', 'message' => 'Data didapatkan', 'data' => $trxData], 200);
         } else {
@@ -481,6 +499,9 @@ class TransactionController extends Controller
                         }
                     }
 
+                    // save to user trx
+                    $this->addToTrx($idUser, $idShop, $orderCode);
+
                     // get data detail transaksi
                     $nReq = new Request();
                     $nReq->merge(['id_shop' => $idShop, 'order_code' => $orderCode]);
@@ -507,6 +528,50 @@ class TransactionController extends Controller
         } else {
             return response()->json(['status' => 'error', 'message' => 'Terjadi kegagalan saat membuat transaksi'], 400);
         }
+    }
+
+    private function addToTrx($idUser, $idShop, $orderCode)
+    {
+        $collection = "us_" . $idUser . "_trx";
+        // create request
+        $request = new Request();
+        $request->merge([
+            'id_shop' => $idShop,
+            'order_code' => $orderCode,
+            'user_data' => false,
+            'shop_data' => true,
+        ]);
+
+        // get data transaksi
+        $trxData = $this->trxDetail($request)->getData();
+
+        if ($trxData) {
+            // register firebase
+            $firestore = app('firebase.firestore')
+                ->database()
+                ->collection($collection);
+
+            // mencari data dengan order_code yang sama
+            $query = $firestore->where('order_code', '=', $orderCode);
+            $documents = $query->documents();
+
+            // menghapus data order_code yang lama
+            foreach ($documents as $document) {
+                $document->reference()->delete();
+            }
+
+            // membuat dokumen baru
+            $newDocument = $firestore->newDocument();
+
+            // convert trx data to array
+            $trxDataArray = json_decode(json_encode($trxData->data), true);
+
+            // save trx data to firebase
+            $newDocument->set($trxDataArray);
+
+            return true;
+        }
+        return false;
     }
 
     public function cancelByCustomer(Request $request, ShopController $shopController)
@@ -580,6 +645,10 @@ class TransactionController extends Controller
 
         // cek apakah pembatalan berhasil
         if ($isUpdate) {
+
+            // save to user trx
+            $this->addToTrx($trxData->id_user, $idShop, $orderCode);
+
 
             // get shop contact
             $contactData = $shopController->getContact($request)->getData();
@@ -671,6 +740,9 @@ class TransactionController extends Controller
 
         // cek apakah pembatalan berhasil
         if ($isUpdate) {
+            // save to user trx
+            $this->addToTrx($trxData->id_user, $idShop, $orderCode);
+
             // return response & send email to user
             Mail::to($trxData->user_data->email)->send(new MerchantRejected($trxData));
             return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dibatalkan'], 200);
@@ -763,6 +835,9 @@ class TransactionController extends Controller
 
         // cek apakah konfirmasi berhasil
         if ($isUpdate) {
+            // save to user trx
+            $this->addToTrx($trxData->id_user, $idShop, $orderCode);
+
             // return response & send email to user
             Mail::to($trxData->user_data->email)->send(new OrderConfirmed($trxData));
             return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dikonfirmasi', 'data' => $trxData], 200);
@@ -851,6 +926,9 @@ class TransactionController extends Controller
 
         // cek apakah update berhasil
         if ($isUpdate) {
+            // save to user trx
+            $this->addToTrx($trxData->id_user, $idShop, $orderCode);
+
             // get shop contact
             $contactData = $shopController->getContact($request)->getData();
             if ($contactData->status === 'success') {
@@ -949,6 +1027,9 @@ class TransactionController extends Controller
 
         // cek apakah pembatalan berhasil
         if ($isUpdate) {
+            // save to user trx
+            $this->addToTrx($trxData->id_user, $idShop, $orderCode);
+
             // return response & send email to merchant
             Mail::to($trxData->user_data->email)->send(new Submitted($trxData));
             return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil diserahkan', 'data' => $trxData], 200);
@@ -1031,6 +1112,9 @@ class TransactionController extends Controller
             ->update($newData);
 
         if ($isUpdate) {
+            // save to user trx
+            $this->addToTrx($trxData->id_user, $idShop, $orderCode);
+
             // get shop contact
             $contactData = $shopController->getContact($request)->getData();
             if ($contactData->status === 'success') {

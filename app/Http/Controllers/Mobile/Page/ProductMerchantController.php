@@ -149,7 +149,7 @@ class ProductMerchantController extends Controller
     public function detailListReview(Request $request, ProductReviewController $review)
     {
         $idShop = $request->input('id_shop');
-        $idShop = $request->input('id_product');
+        $idProd = $request->input('id_product');
 
         $isExistShop = $this->isExistShop($idShop);
         if ($isExistShop['status'] === 'success') {

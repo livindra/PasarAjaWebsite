@@ -89,44 +89,6 @@ class ShopController extends Controller
         });
     }
 
-    private function createTableReview($tableName, $tableProd)
-    {
-        // create table shop review
-        Schema::dropIfExists($tableName);
-        Schema::create($tableName, function (Blueprint $table) use ($tableProd) {
-            $table->id('id_review');
-            $table->unsignedBigInteger('id_user');
-            $table->unsignedBigInteger('id_product');
-            $table->enum('star', ['1', '2', '3', '4', '5']);
-            $table->date('order_date');
-            $table->text('comment')->nullable();
-            $table->timestamps();
-            $table->foreign('id_user')->references('id_user')
-                ->on('0users')->onDelete('cascade');
-            $table->foreign('id_product')->references('id_product')
-                ->on($tableProd)->onUpdate('cascade')->onDelete('cascade');
-        });
-    }
-
-    private function createTableComplain($tableName, $tableProd)
-    {
-        Schema::dropIfExists($tableName);
-        Schema::create($tableName, function (Blueprint $table) use ($tableProd) {
-            $table->id('id_complain');
-            $table->unsignedBigInteger('id_user');
-            $table->unsignedBigInteger('id_shop');
-            $table->unsignedBigInteger('id_product');
-            $table->text('reason');
-            $table->timestamps();
-            $table->foreign('id_user')->references('id_user')
-                ->on('0users')->onDelete('no action');
-            $table->foreign('id_shop')->references('id_shop')
-                ->on('0shops')->onDelete('cascade');
-            $table->foreign('id_product')->references('id_product')
-                ->on($tableProd)->onUpdate('cascade')->onDelete('cascade');
-        });
-    }
-
     private function createTablePromo($tableName, $tableProd)
     {
         // create table shop promo
@@ -183,6 +145,49 @@ class ShopController extends Controller
         });
     }
 
+    private function createTableReview($tableName, $tableProd, $tableTrx)
+    {
+        // create table shop review
+        Schema::dropIfExists($tableName);
+        Schema::create($tableName, function (Blueprint $table) use ($tableProd, $tableTrx) {
+            $table->id('id_review');
+            $table->unsignedBigInteger('id_user');
+            $table->unsignedBigInteger('id_trx');
+            $table->unsignedBigInteger('id_product');
+            $table->enum('star', ['1', '2', '3', '4', '5']);
+            $table->text('comment')->nullable();
+            $table->timestamps();
+            $table->foreign('id_trx')->references('id_trx')
+                ->on($tableTrx)->onDelete('cascade');
+            $table->foreign('id_user')->references('id_user')
+                ->on('0users')->onDelete('cascade');
+            $table->foreign('id_product')->references('id_product')
+                ->on($tableProd)->onUpdate('cascade')->onDelete('cascade');
+        });
+    }
+
+    private function createTableComplain($tableName, $tableProd, $tableTrx)
+    {
+        Schema::dropIfExists($tableName);
+        Schema::create($tableName, function (Blueprint $table) use ($tableProd, $tableTrx) {
+            $table->id('id_complain');
+            $table->unsignedBigInteger('id_user');
+            $table->unsignedBigInteger('id_shop');
+            $table->unsignedBigInteger('id_trx');
+            $table->unsignedBigInteger('id_product');
+            $table->text('reason');
+            $table->timestamps();
+            $table->foreign('id_user')->references('id_user')
+                ->on('0users')->onDelete('no action');
+            $table->foreign('id_shop')->references('id_shop')
+                ->on('0shops')->onDelete('cascade');
+            $table->foreign('id_trx')->references('id_trx')
+                ->on($tableTrx)->onDelete('cascade');
+            $table->foreign('id_product')->references('id_product')
+                ->on($tableProd)->onUpdate('cascade')->onDelete('cascade');
+        });
+    }
+
     public function createShop(Request $request, Shops $shop)
     {
         $idUser = $request->input('id_user');
@@ -231,12 +236,6 @@ class ShopController extends Controller
                 // create table product
                 $this->createTableProduct($tableProduct);
 
-                // create table review
-                $this->createTableReview($tableReview, $tableProduct);
-
-                // create table complain
-                $this->createTableComplain($tableComplain, $tableProduct);
-
                 // create table promo
                 $this->createTablePromo($tablePromo, $tableProduct);
 
@@ -245,6 +244,12 @@ class ShopController extends Controller
 
                 // create table transaction detail
                 $this->createTableTransactionDetail($tabelTransacDetail, $tableTransaction, $tableProduct);
+
+                // create table review
+                $this->createTableReview($tableReview, $tableProduct, $tableTransaction);
+
+                // create table complain
+                $this->createTableComplain($tableComplain, $tableProduct, $tableTransaction);
 
                 return response()->json(['status' => 'succcess', 'message' => 'Toko berhasil dibuat', 'data' => $shopData,], 200);
             }
@@ -418,7 +423,7 @@ class ShopController extends Controller
         if (!$shopData) {
             return response()->json(['status' => 'error', 'message' => 'Shop not found'], 404);
         }
-        
+
         $shopData->photo = asset('shops/' . $shopData->photo);
         return response()->json(['status' => 'success', 'message' => 'data dapat',  'data' => $shopData], 200);
     }

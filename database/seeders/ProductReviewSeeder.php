@@ -18,37 +18,37 @@ class ProductReviewSeeder extends Seeder
             [
                 [
                     'id_user' => 1,
+                    'id_trx' => 1,
                     'id_product' => 1,
                     'star' => '4',
                     'comment' => 'sangat enak',
-                    'order_date' => '2019-10-10',
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ],
                 [
                     'id_user' => 1,
+                    'id_trx' => 1,
                     'id_product' => 2,
                     'star' => '2',
                     'comment' => 'kurang enak',
-                    'order_date' => '2019-10-10',
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ],
                 [
                     'id_user' => 1,
+                    'id_trx' => 1,
                     'id_product' => 2,
                     'star' => '5',
                     'comment' => 'enak banget',
-                    'order_date' => '2019-10-10',
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ],
                 [
                     'id_user' => 1,
+                    'id_trx' => 1,
                     'id_product' => 1,
                     'star' => '5',
                     'comment' => 'b aja',
-                    'order_date' => '2019-10-10',
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ],
