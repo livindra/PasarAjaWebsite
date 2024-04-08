@@ -117,14 +117,16 @@ class ProductPromoController extends Controller
         if ($type === 'soon') {
             $promos = DB::table(DB::raw("$tablePromo as prm"))
                 ->join(DB::raw("$tableProd as prod"), "prod.id_product", "prm.id_product")
-                ->select("prm.*", "prod.id_shop", "prod.product_name", "prod.id_cp_prod", "prod.price", "prod.photo")
+                ->join('0product_categories as ctg', 'ctg.id_cp_prod', 'prod.id_cp_prod')
+                ->select("prm.*", "prod.id_shop", "prod.product_name", "prod.id_cp_prod", "ctg.category_name", "prod.price", "prod.photo")
                 ->where('prm.start_date', '>', $currentDate)
                 ->orderByDesc('prm.end_date')
                 ->get();
         } else if ($type === 'active') {
             $promos = DB::table(DB::raw("$tablePromo as prm"))
                 ->join(DB::raw("$tableProd as prod"), "prod.id_product", "prm.id_product")
-                ->select("prm.*", "prod.id_shop", "prod.product_name", "prod.id_cp_prod", "prod.price", "prod.photo")
+                ->join('0product_categories as ctg', 'ctg.id_cp_prod', 'prod.id_cp_prod')
+                ->select("prm.*", "prod.id_shop", "prod.product_name", "prod.id_cp_prod", "ctg.category_name", "prod.price", "prod.photo")
                 ->where('prm.start_date', '<=', $currentDate)
                 ->where('prm.end_date', '>=', $currentDate)
                 ->orderByDesc('prm.end_date')
@@ -132,7 +134,8 @@ class ProductPromoController extends Controller
         } else if ($type === 'expired') {
             $promos = DB::table(DB::raw("$tablePromo as prm"))
                 ->join(DB::raw("$tableProd as prod"), "prod.id_product", "prm.id_product")
-                ->select("prm.*", "prod.id_shop", "prod.product_name", "prod.id_cp_prod", "prod.price", "prod.photo")
+                ->join('0product_categories as ctg', 'ctg.id_cp_prod', 'prod.id_cp_prod')
+                ->select("prm.*", "prod.id_shop", "prod.product_name", "prod.id_cp_prod", "ctg.category_name", "prod.price", "prod.photo")
                 ->where('prm.end_date', '<', $currentDate)
                 ->orderByDesc('prm.end_date')
                 ->get();
@@ -146,6 +149,7 @@ class ProductPromoController extends Controller
         } else {
             // add photo path
             foreach ($promos as $prm) {
+                $prm->product_name = ucwords($prm->product_name);
                 $prm->photo = asset('prods/' . $prm->photo);
             }
             return response()->json(['status' => 'success', 'message' => 'Data didapatkan', 'data' => $promos], 200);
