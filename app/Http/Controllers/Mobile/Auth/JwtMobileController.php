@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Mobile\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\RefreshToken;
+use App\Models\Shops;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Firebase\JWT\JWT;
@@ -50,8 +51,20 @@ class JwtMobileController extends Controller
         // jika email exist
         if ($isExist) {
             // mendapatkan data data
-            $dataDb = User::select()->where('email', '=', $email)->limit(1)->get();
-            $data = json_decode(json_encode($dataDb));
+            $userData = User::select()->where('email', '=', $email)->limit(1)->first();
+            // mendapatkan data toko jika user login sebagai penjual
+            if ($userData->level === 'Penjual') {
+                $shopData = Shops::select([
+                    'id_shop', 'phone_number as shop_phone_number',
+                    'shop_name', 'description',
+                ])->where('id_user', $userData->id_user)->limit(1)->first();
+                if ($shopData) {
+                    $userData->shop_data = $shopData;
+                } else {
+                    return ['status' => 'error', 'message' => 'Tidak dapat menemukan Toko di Akun Anda'];
+                }
+            }
+            $data = json_decode(json_encode($userData));
             // kalkulasi expiration time
             $exp = time() + intval(env('JWT_ACCESS_TOKEN_EXPIRED'));
             $expRefresh = time() + intval(env('JWT_REFRESH_TOKEN_EXPIRED'));
@@ -69,7 +82,7 @@ class JwtMobileController extends Controller
             $refreshToken->token = $rToken;
             $refreshToken->device = 'Mobile';
             $refreshToken->device_token = $deviceToken;
-            if(is_null($deviceName)){
+            if (is_null($deviceName)) {
                 $deviceName = 'Unknown';
             }
             $refreshToken->device_name = $deviceName;
@@ -84,7 +97,7 @@ class JwtMobileController extends Controller
     public function createJWTMobile(Request $request, RefreshToken $refreshToken)
     {
         $email = $request->input('email');
-  
+
         try {
             if (empty($email) || is_null($email)) {
                 return ['status' => 'error', 'message' => 'email empty'];
