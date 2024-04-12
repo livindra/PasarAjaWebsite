@@ -194,6 +194,12 @@ class ProductComplainController extends Controller
             return response()->json(['status' => 'error', 'message' => 'ID user tidak cocok'], 400);
         }
 
+        // jika transaksi belum selesai
+        if ($trxData->status !== 'Finished') {
+            return response()->json(['status' => 'error', 'message' => 'Tidak bisa review karena transaksi belum selesai'], 400);
+        }
+
+
         // jika tanggal trx sudah lebih dari 7 hari maka sudah tidak bisa add rvw
         $trxDate = Carbon::parse($trxData->updated_at);
         $maxDate = Carbon::now()->addDays(7);
@@ -225,7 +231,7 @@ class ProductComplainController extends Controller
 
                 // return response
                 if ($addData) {
-                    return response()->json(['status' => 'success', 'message' => 'Komplain berhasil ditambahkan'], 200);
+                    return response()->json(['status' => 'success', 'message' => 'Komplain berhasil ditambahkan'], 201);
                 } else {
                     return response()->json(['status' => 'error', 'message' => 'Gagal membuat komplain'], 404);
                 }
@@ -237,11 +243,13 @@ class ProductComplainController extends Controller
     public function updateComplain(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'id_complain' => 'required|integer',
             'id_trx' => 'required|integer',
             'id_shop' => 'required|integer',
             'id_product' => 'required|integer',
             'reason' => 'required|string|max:100',
         ], [
+            'id_complain' => 'ID complain tidak valid',
             'id_trx' => 'ID Trx tidak valid.',
             'id_shop' => 'ID shop tidak valid.',
             'id_product' => 'ID product tidak valid.',
@@ -253,6 +261,7 @@ class ProductComplainController extends Controller
             return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 400);
         }
 
+        $idComp = $request->input('id_complain');
         $idTrx = $request->input('id_trx');
         $idShop = $request->input('id_shop');
         $idProduct = $request->input('id_product');
@@ -290,6 +299,7 @@ class ProductComplainController extends Controller
 
             // update review
             $updateData = DB::table($tableComp)
+                ->where('id_complain', $idComp)
                 ->where('id_trx', $idTrx)
                 ->where('id_product', $idProduct)
                 ->update($data);
@@ -307,6 +317,7 @@ class ProductComplainController extends Controller
 
     public function deleteComplain(Request $request)
     {
+        $idComp = $request->input('id_complain');
         $idTrx = $request->input('id_trx');
         $idShop = $request->input('id_shop');
         $idProd = $request->input('id_product');
@@ -330,6 +341,7 @@ class ProductComplainController extends Controller
             if ($trxDate->lessThan($maxDate)) {
                 // menghapus comp
                 $isDelete = DB::table($tableComp)
+                    ->where('id_complain', $idComp)
                     ->where('id_trx', $idTrx)
                     ->where('id_product', $idProd)
                     ->delete();

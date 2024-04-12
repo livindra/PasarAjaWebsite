@@ -163,6 +163,7 @@ class TransactionController extends Controller
                     $subTotal += ($detail->price * $detail->quantity);
                     $totalPromo += $detail->promo_price;
                     $totalPrice += $detail->total_price;
+                    $detail->product_name = ucwords($detail->product_name);
                 }
                 $trxData->total_product = $totalProd;
                 $trxData->total_quantity = $totalQuantity;
@@ -240,6 +241,7 @@ class TransactionController extends Controller
             ->when($status !== '-', function ($query) use ($status) {
                 $query->where('trx.status', $status);
             })
+            ->orderByDesc('trx.id_trx')
             ->get();
 
         // get detail prod
@@ -255,11 +257,34 @@ class TransactionController extends Controller
                         'prod.unit',
                         'prod.selling_unit',
                         'prod.price',
-                        'dtl.promo_price'
+                        DB::raw('(dtl.promo_price * quantity) as promo_price'),
+                        'dtl.notes',
+                        DB::raw('(prod.price * dtl.quantity) - (dtl.promo_price * dtl.quantity) AS total_price')
                     ]
                 )
                 ->where('dtl.id_trx', $trx->id_trx)
                 ->get();
+
+            // hitung rician pesaanan
+            $totalProd = 0;
+            $totalQuantity = 0;
+            $subTotal = 0;
+            $totalPromo = 0;
+            $totalPrice = 0;
+            foreach ($details as $detail) {
+                $totalProd++;
+                $totalQuantity += $detail->quantity;
+                $subTotal += ($detail->price * $detail->quantity);
+                $totalPromo += $detail->promo_price;
+                $totalPrice += $detail->total_price;
+                $detail->product_name = ucwords($detail->product_name);
+            }
+            $trxData[$key]->order_id = strtoupper('#' . Str::afterLast($trxData[$key]->order_code, '-'));
+            $trxData[$key]->total_product = $totalProd;
+            $trxData[$key]->total_quantity = $totalQuantity;
+            $trxData[$key]->total_promo = $totalPromo;
+            $trxData[$key]->sub_total = $subTotal;
+            $trxData[$key]->total_price = $totalPrice;
 
             // menambahkan detail trx
             $trxData[$key]->details = $details;
@@ -840,7 +865,7 @@ class TransactionController extends Controller
 
             // return response & send email to user
             Mail::to($trxData->user_data->email)->send(new OrderConfirmed($trxData));
-            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dikonfirmasi', 'data' => $trxData], 200);
+            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dikonfirmasi'], 200);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Gagal mengkonfirmasi pesanan'], 400);
         }
@@ -935,7 +960,7 @@ class TransactionController extends Controller
                 // return response & send email to merchant
                 Mail::to($contactData->data->email)->send(new InTaking($trxData));
             }
-            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil diupdate', 'data' => $trxData], 200);
+            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil diupdate'], 200);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Gagal update pesanan'], 400);
         }
@@ -1032,7 +1057,7 @@ class TransactionController extends Controller
 
             // return response & send email to merchant
             Mail::to($trxData->user_data->email)->send(new Submitted($trxData));
-            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil diserahkan', 'data' => $trxData], 200);
+            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil diserahkan'], 200);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyerahkan pesanan'], 400);
         }
@@ -1121,7 +1146,7 @@ class TransactionController extends Controller
                 // return response & send email to merchant
                 Mail::to($contactData->data->email)->send(new Finished($trxData));
             }
-            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil diselesaikan', 'data' => $trxData], 200);
+            return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil diselesaikan'], 200);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyelesaikan pesanan'], 400);
         }
