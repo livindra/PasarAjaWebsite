@@ -95,6 +95,37 @@ class ProductPromoController extends Controller
         }
     }
 
+    public function detailPromo(Request $request){
+        $idShop = $request->input('id_shop');
+        $idPromo = $request->input('id_promo');
+
+        $tableProd = $this->generateTableProd($idShop);
+        $tablePromo = $this->generateTablePromo($idShop);
+
+        $isExistShop = $this->isExistShop($idShop);
+
+        if ($isExistShop['status'] === 'error') {
+            return response()->json(['status' => 'error', 'message' => 'Toko tidak ditemukan'], 404);
+        }
+
+        $promo = DB::table(DB::raw("$tablePromo as prm"))
+        ->join(DB::raw("$tableProd as prod"), "prod.id_product", "prm.id_product")
+        ->join('0product_categories as ctg', 'ctg.id_cp_prod', 'prod.id_cp_prod')
+        ->select("prm.*", "prod.id_shop", "prod.product_name", "prod.id_cp_prod", "ctg.category_name", "prod.price", "prod.photo")
+        ->where('prm.id_promo', $idPromo)
+        ->orderByDesc('prm.end_date')
+        ->first();
+
+        $promo->product_name = ucwords($promo->product_name);
+
+        if($promo){
+            return response()->json(['status'=>'success', 'message'=>'detail promo berhasil didapatkan', 'data'=>$promo], 200);
+        }else{
+            return response()->json(['status'=>'error', 'message'=>'detail promo gagal didapatkan'], 400);
+        }
+
+    }
+
     public function getPromos(Request $request)
     {
         $idShop = $request->input('id_shop');
@@ -329,6 +360,7 @@ class ProductPromoController extends Controller
         $productData = DB::table(DB::raw("$tablePromo as promo"))
             ->join(DB::raw("$tableProd as prod"), 'prod.id_product', 'promo.id_product')
             ->select('prod.*')
+            ->where('promo.id_promo', $idPromo)
             ->limit(1)->first();
 
         //
