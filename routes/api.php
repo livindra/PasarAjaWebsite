@@ -91,6 +91,7 @@ Route::group(['prefix' => '/m'], function () {
         Route::get('/bestselling', [ProductController::class, 'bestSelling']);
         Route::group(['prefix' => 'update'], function () {
             Route::post('/data', [ProductController::class, 'updateProduct']);
+            Route::post('/photo', [ProductController::class, 'updateProductPhoto']);
             Route::put('/stok', [ProductController::class, 'setStock']);
             Route::put('/visibility', [ProductController::class, 'setVisibility']);
             Route::put('/recommended', [ProductController::class, 'setRecommended']);
@@ -127,6 +128,7 @@ Route::group(['prefix' => '/m'], function () {
         Route::group(['prefix' => '/promo'], function () {
             Route::get('/', [ProductPromoController::class, 'getPromos']);
             Route::get('/ispromo', [ProductPromoController::class, 'isPromo']);
+            Route::get('/detail', [ProductPromoController::class, 'detailPromo']);
             Route::post('/create', [ProductPromoController::class, 'addPromo']);
             Route::put('/update', [ProductPromoController::class, 'updatePromo']);
             Route::delete('/delete', [ProductPromoController::class, 'deletePromo']);
