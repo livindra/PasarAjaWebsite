@@ -52,6 +52,7 @@ class JwtMobileController extends Controller
         if ($isExist) {
             // mendapatkan data data
             $userData = User::select()->where('email', '=', $email)->limit(1)->first();
+            $userData->photo = asset('users/' . $userData->photo);
             // mendapatkan data toko jika user login sebagai penjual
             if ($userData->level === 'Penjual') {
                 $shopData = Shops::select([
