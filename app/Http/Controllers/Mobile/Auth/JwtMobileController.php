@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\RefreshToken;
 use App\Models\Shops;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
 use UnexpectedValueException;
@@ -52,6 +52,7 @@ class JwtMobileController extends Controller
         if ($isExist) {
             // mendapatkan data data
             $userData = User::select()->where('email', '=', $email)->limit(1)->first();
+            $userData->photo = asset('users/' . $userData->photo);
             // mendapatkan data toko jika user login sebagai penjual
             if ($userData->level === 'Penjual') {
                 $shopData = Shops::select([
@@ -65,9 +66,11 @@ class JwtMobileController extends Controller
                 }
             }
             $data = json_decode(json_encode($userData));
-            // kalkulasi expiration time
-            $exp = time() + intval(env('JWT_ACCESS_TOKEN_EXPIRED'));
-            $expRefresh = time() + intval(env('JWT_REFRESH_TOKEN_EXPIRED'));
+            // kalkulasi expiration time 
+            $millisNow = Carbon::now()->timestamp;
+            $exp =  $millisNow + env('JWT_ACCESS_TOKEN_EXPIRED');
+            $expRefresh = $millisNow + env('JWT_REFRESH_TOKEN_EXPIRED');
+     
             // prepare payload
             $payload = ['data' => $data, 'number' => 1, 'exp' => $exp];
             $payloadRefresh = ['data' => $data, 'exp' => $expRefresh];

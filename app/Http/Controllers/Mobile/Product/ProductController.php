@@ -165,7 +165,7 @@ class ProductController extends Controller
 
         // cek validasi
         if ($validator->fails()) {
-            return ['status' => 'error', 'message' => $validator->errors()->first()];
+            return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 400);
         }
 
         // get data
@@ -254,7 +254,6 @@ class ProductController extends Controller
             'unit' => 'required|in:Gram,Kilogram,Ons,Kuintal,Ton,Liter,Milliliter,Sendok,Cangkir,Mangkok,Botol,Karton,Dus,Buah,Ekor,Gelas,Piring,Bungkus',
             'selling_unit' => 'required|integer',
             'price' => 'required|integer|min:1',
-            'photo' => 'required|file|image|max:512',
             'settings' => 'required|json',
         ], [
             'id_shop.required' => 'ID Shop tidak boleh kosong.',
@@ -273,15 +272,12 @@ class ProductController extends Controller
             'price.required' => 'Harga tidak boleh kosong.',
             'price.integer' => 'Harga harus berupa angka.',
             'price.min' => 'Harga minimal bernilai 1.',
-            'photo.required' => 'Foto produk tidak boleh kosong.',
-            'photo.max' => 'Ukuran foto produk tidak boleh lebih dari 512 kb',
-            'photo.image' => 'File harus berupa gambar.',
             'settings.json' => 'Pengaturan harus berupa data JSON yang valid.',
         ]);
 
         // cek validasi
         if ($validator->fails()) {
-            return ['status' => 'error', 'message' => $validator->errors()->first()];
+            return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 400);
         }
 
         // get data
@@ -294,7 +290,6 @@ class ProductController extends Controller
         $unit = $request->input('unit');
         $sellingUnit = $request->input('selling_unit');
         $price = $request->input('price');
-        $request->file('photo');
 
         // generate table name
         $tableName = $this->generateTableName($idShop);
@@ -304,7 +299,8 @@ class ProductController extends Controller
 
         // jika data setting tidak valid
         if ($validateSetting['status'] === 'error') {
-            return response()->json(['status' => 'error', 'message' => $validateSetting['message']], 400);
+            return response()->json(['status' => 'error', 'message' => 'Setting tidak valid'], 400);
+            // return response()->json(['status' => 'error', 'message' => $validateSetting['message']], 400);
         }
 
         // cek apakah toko ada atau tidak didalam database
@@ -317,6 +313,116 @@ class ProductController extends Controller
         $isExistCategory = $this->isExistCategory($idCategory);
         if ($isExistCategory['status'] === 'error') {
             return response()->json(['status' => 'error', 'message' => $isExistCategory['message']], 400);
+        }
+
+        // cek apakah produk exist
+        $isExistProd = $this->isExistProduct($tableName, $idProd);
+        if ($isExistProd['status'] === 'error') {
+            return response()->json(['status' => 'error', 'message' => $isExistProd['message']], 400);
+        }
+
+        // get nama foto produk yang lama
+        $oldData = DB::table($tableName)->select(['product_name', 'photo'])
+            ->where('id_product', $idProd)
+            ->limit(1)->first();
+
+        // // mendapatkan direktori foto
+        // $oldPhotoDir = '';
+        // if (app()->environment('local')) {
+        //     $oldPhotoDir = public_path('prods/' . $oldData->photo);
+        // } else {
+        //     $oldPhotoDir = public_path(base_path('../public_html/public/prods/')) . $oldData->photo;
+        // }
+
+        // // menghapus foto yang lama
+        // if (File::exists($oldPhotoDir)) {
+        //     File::delete($oldPhotoDir);
+        // }
+
+        // // save foto produk yang baru
+        // $photoSaveResponse = $this->saveProductPhoto($request);
+
+        // // jika foto produk yang baru berhasil disimpan
+        // if ($photoSaveResponse['status'] == 'success') {
+
+        // put new data
+        $newData = [
+            'id_cp_prod' => $idCategory,
+            'description' => $description,
+            'settings' => $settings,
+            'unit' => $unit,
+            'selling_unit' => $sellingUnit,
+            'price' => $price,
+            'updated_at' => Carbon::now(),
+        ];
+
+        // mendapatkan nama produk yang lama
+        $oldProductname = $oldData->product_name;
+
+        // jika user mengedit nama produk
+        if ($productName !== $oldProductname) {
+
+            // cek apakah nama produk yang baru sudah terdatar atau belum
+            $isExistName = $this->isExistName($tableName, $productName);
+            if ($isExistName['status'] === 'success') {
+                return response()->json(['status' => 'error', 'message' => $isExistName['message']], 400);
+            }
+        }
+
+        // update nama produk
+        $newData['product_name'] = $productName;
+
+        // simpan data produk yang baru
+        $isUpdate = DB::table($tableName)
+            ->where('id_product', $idProd)
+            ->update($newData);
+
+        // jika proses update produk berhasil
+        if ($isUpdate) {
+            return response()->json(['status' => 'success', 'message' => 'Produk berhasil disimpan'], 200);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Produk gagal disimpan'], 400);
+        }
+        // } else {
+        //     return response()->json(['status' => 'error', 'message' => $photoSaveResponse['message']], 500);
+        // }
+    }
+
+    public function updateProductPhoto(Request $request)
+    {
+
+        // validasi data produk
+        $validator = Validator::make($request->all(), [
+            'id_shop' => 'required|integer',
+            'id_product' => 'required|integer',
+            'photo' => 'required|file|image|max:512',
+
+        ], [
+            'id_shop.required' => 'ID Shop tidak boleh kosong.',
+            'id_shop.integer' => 'ID Shop harus berupa angka',
+            'id_product.required' => 'ID Product produk tidak boleh kosong.',
+            'id_product.integer' => 'ID Product harus berupa angka',
+            'photo.required' => 'Foto produk tidak boleh kosong.',
+            'photo.max' => 'Ukuran foto produk tidak boleh lebih dari 512 kb',
+            'photo.image' => 'File harus berupa gambar.',
+        ]);
+
+        // cek validasi
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 400);
+        }
+
+        $idShop = $request->input('id_shop');
+        $idProd = $request->input('id_product');
+        $photo = $request->file('photo');
+
+        // generate table name
+        $tableName = $this->generateTableName($idShop);
+
+        // cek apakah toko ada atau tidak didalam database
+        $isExistShop = $this->isExistShop($idShop);
+        if ($isExistShop['status'] === 'error') {
+            return response()->json(['status' => 'error', 'message' => $isExistShop['message']], 400);
         }
 
         // cek apakah produk exist
@@ -346,36 +452,12 @@ class ProductController extends Controller
         // save foto produk yang baru
         $photoSaveResponse = $this->saveProductPhoto($request);
 
-        // jika foto produk yang baru berhasil disimpan
         if ($photoSaveResponse['status'] == 'success') {
-
             // put new data
             $newData = [
-                'id_cp_prod' => $idCategory,
-                'description' => $description,
-                'settings' => $settings,
-                'unit' => $unit,
-                'selling_unit' => $sellingUnit,
-                'price' => $price,
                 'photo' => $photoSaveResponse['data']['filename'],
                 'updated_at' => Carbon::now(),
             ];
-
-            // mendapatkan nama produk yang lama
-            $oldProductname = $oldData->product_name;
-
-            // jika user mengedit nama produk
-            if ($productName !== $oldProductname) {
-
-                // cek apakah nama produk yang baru sudah terdatar atau belum
-                $isExistName = $this->isExistName($tableName, $productName);
-                if ($isExistName['status'] === 'success') {
-                    return response()->json(['status' => 'error', 'message' => $isExistName['message']], 400);
-                }
-            }
-
-            // update nama produk
-            $newData['product_name'] = $productName;
 
             // simpan data produk yang baru
             $isUpdate = DB::table($tableName)
@@ -384,7 +466,7 @@ class ProductController extends Controller
 
             // jika proses update produk berhasil
             if ($isUpdate) {
-                return response()->json(['status' => 'success', 'message' => 'Produk berhasil disimpan'], 200);
+                return response()->json(['status' => 'success', 'message' => 'Produk berhasil diupdate'], 200);
             } else {
                 return response()->json(['status' => 'error', 'message' => 'Produk gagal disimpan'], 400);
             }
@@ -399,7 +481,7 @@ class ProductController extends Controller
         if ($key !== 'is_shown' && $key !== 'is_available' && $key !== 'is_recommended') {
             return ['status' => 'error', 'message' => 'Key tidak valid'];
         }
-    
+
         // cek apakah produk exist
         $isExistProd = $this->isExistProduct($tableName, $idProd);
         if ($isExistProd['status'] === 'success') {
@@ -408,25 +490,25 @@ class ProductController extends Controller
                 ->select('settings')
                 ->where('id_product', '=', $idProd)
                 ->first();
-    
+
             // jika setting tidak kosong
             if ($settings) {
                 // echo $settings->settings;
-    
+
                 // decode settings
                 $settingsData = json_decode($settings->settings, true);
-    
+
                 // cek apakah ada perubahan nilai
                 if ($settingsData[$key] !== $value) {
                     // edit value dari key
                     $settingsData[$key] = $value;
-    
+
                     // encode settings
                     $updatedSettings = json_encode($settingsData);
-    
+
                     // validasi data setting
                     $validateSetting = $this->validateSettings($updatedSettings);
-    
+
                     // jika data setting tidak valid
                     if ($validateSetting['status'] === 'error') {
                         return ['status' => 'error', 'message' => $validateSetting['message']];
@@ -440,7 +522,7 @@ class ProductController extends Controller
                                     'updated_at' => Carbon::now(),
                                 ]
                             );
-    
+
                         // jika data berhasil diupdate
                         if ($isUpdate) {
                             return ['status' => 'success', 'message' => 'Data berhasil diupdate'];
@@ -458,7 +540,7 @@ class ProductController extends Controller
             return ['status' => 'error', 'message' => 'Product tidak ditemukan'];
         }
     }
-    
+
 
     public function setStock(Request $request)
     {
@@ -553,7 +635,7 @@ class ProductController extends Controller
             'Piring'
         ];
 
-        return response()->json(['status' => 'success', 'message'=> 'data diambil', 'data'=>$units]);
+        return response()->json(['status' => 'success', 'message' => 'data diambil', 'data' => $units]);
     }
 
     public function allProducts(Request $request)

@@ -447,7 +447,7 @@ class MobileAuthController extends Controller
 
         // cek validasi
         if ($validator->fails()) {
-            return ['status' => 'error', 'message' => $validator->errors()->first()];
+            return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 400);
         }
 
         $email = $request->input('email');
@@ -458,11 +458,15 @@ class MobileAuthController extends Controller
             ->where('email', $email)
             ->limit(1)->first();
 
+        if (is_null($oldUserData)) {
+            return response()->json(['status' => 'error', 'message' => 'Email tidak ditemukan'], 404);
+        }
+
         // get old file name
         $oldFilename = $oldUserData->photo;
 
         // menghapus foto yang lama
-        if ($oldFilename !== 'photo-profile.png') {
+        if ($oldFilename !== 'profile.png') {
             // mendapatkan direktori foto
             $oldPhotoDir = '';
             if (app()->environment('local')) {
@@ -493,10 +497,14 @@ class MobileAuthController extends Controller
             if ($updateData) {
                 // return response()->json(['status' => 'success', 'message' => 'Foto berhasil disimpan'], 200);
 
+                $data = [
+                    'photo' => asset('users/' . $photoSaveResponse['data']['filename']),
+                ];
+
                 // update token
                 $tokenUpdate = $jwtController->updateRefreshMobile($email);
                 if (!is_null($tokenUpdate) && $tokenUpdate['status'] == 'success') {
-                    return response()->json(['status' => 'success', 'message' => 'Foto berhasil disimpan'], 200);
+                    return response()->json(['status' => 'success', 'message' => 'Foto berhasil disimpan', 'data' => $data], 200);
                 } else {
                     return response()->json(['status' => 'error', 'message' => 'gagal update token'], 400);
                 }
@@ -507,6 +515,79 @@ class MobileAuthController extends Controller
             return response()->json(['status' => 'error', 'message' => $photoSaveResponse['message']], 500);
         }
     }
+
+    public function deletePhotoProfile(Request $request, User $user, JwtMobileController $jwtController)
+    {
+
+        // validasi data
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ], [
+            'email' => 'Email tidak valid.',
+        ]);
+
+        // cek validasi
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 400);
+        }
+
+        $email = $request->input('email');
+
+        // mendapatkan data foto profile yang lama
+        $oldUserData = $user->select('photo')
+            ->where('email', $email)
+            ->limit(1)->first();
+
+        if (is_null($oldUserData)) {
+            return response()->json(['status' => 'error', 'message' => 'Email tidak ditemukan'], 404);
+        }
+
+        // get old file name
+        $oldFilename = $oldUserData->photo;
+
+        // menghapus foto yang lama
+        if ($oldFilename !== 'profile.png') {
+            // mendapatkan direktori foto
+            $oldPhotoDir = '';
+            if (app()->environment('local')) {
+                $oldPhotoDir = public_path('users/' . $oldFilename);
+            } else {
+                $oldPhotoDir = public_path(base_path('../public_html/public/users/')) . $oldFilename;
+            }
+
+            // menghapus foto yang lama
+            if (File::exists($oldPhotoDir)) {
+                File::delete($oldPhotoDir);
+            }
+        }
+
+        // update data profile
+        $updateData = $user->where('email', $email)
+            ->update([
+                'photo' => 'profile.png',
+                'updated_at' => Carbon::now(),
+            ]);
+
+        // cek data berhasil diupdate atau tidak
+        if ($updateData) {
+            // return response()->json(['status' => 'success', 'message' => 'Foto berhasil disimpan'], 200);
+
+            $data = [
+                'photo' => asset('users/' . 'profile.png'),
+            ];
+
+            // update token
+            $tokenUpdate = $jwtController->updateRefreshMobile($email);
+            if (!is_null($tokenUpdate) && $tokenUpdate['status'] == 'success') {
+                return response()->json(['status' => 'success', 'message' => 'Foto berhasil dihapus', 'data' => $data], 200);
+            } else {
+                return response()->json(['status' => 'error', 'message' => 'gagal update token'], 400);
+            }
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Foto gagal disimpan'], 400);
+        }
+    }
+
 
     public function updateDeviceToken(Request $request, RefreshToken $refreshToken)
     {

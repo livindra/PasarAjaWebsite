@@ -293,6 +293,10 @@ class TransactionController extends Controller
         return response()->json(['status' => 'success', 'message' => 'testing', 'data' => $trxData], 200);
     }
 
+    public function scanTrx(Request $request){
+        // cek apakah pesanan yang discan memiliki status 'InTaking'
+    }
+
     public function createTrx(
         Request $request,
         Shops $shops,
