@@ -35,12 +35,6 @@
         <div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
           <form style="width: 23rem;">
             <h3 class="fw-normal mb-3 pb-3" id="text-log">Ganti Password</h3>
-
-            <!-- <div class="form-outline mb-4">
-              <label class="form-label" for="form2Example18" id="text-1">Email</label>
-              <input type="email" id="form2Example18" class="form-control form-control-lg" />
-            </div> -->
-
             <div class="form-outline mb-4">
               <label class="form-label" for="form2Example28">Password</label>
               <input type="password" id="form2Example28" class="form-control form-control-lg" />
@@ -54,10 +48,6 @@
             <div class="pt-1 mb-4">
               <button class="btn btn-info btn-lg btn-block" id="btn-detail" type="button">Ganti Password</button>
             </div>
-
-            <!-- <p class="small mb-5 pb-lg-2"><a class="text-detail" href="#!">Lupa Password?</a></p> -->
-            <!-- <p>Don't have an account? <a href="#!" class="link-info">Register here</a></p> -->
-
           </form>
         </div>
       </div>

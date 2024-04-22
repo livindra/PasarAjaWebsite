@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <!-- Required meta tags -->
+      <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Skydash Admin</title>
@@ -188,7 +187,7 @@
       <!-- partial -->
       <!-- <div class="container">
 
-        @yield('content')
+       
 
       </div> -->
       <div class="main-panel">
@@ -197,9 +196,7 @@
             <div class="col-md-12 grid-margin">
               <div class="row">
                 <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                <h5 class="font-weight-normal mb-0">Hello!!!</h5>
-                  <h2 class="font-weight-bold mt-2">Selamat Datang, Admin</h2>
-                  <h5 class="font-weight-normal mb-0">Pasar wage nganjuk</h5>
+                  <h2 class="font-weight-bold mt-2">Data Event</h2>
                 </div>
                 <div class="col-12 col-xl-4">
                  <div class="justify-content-end d-flex">
@@ -219,16 +216,36 @@
               </div>
             </div>
           </div>
-          <div class="row">
-            <div class="col-md-6 grid-margin stretch-card">
-              <div class="card tale-bg">
-                <div class="card-people d-flex">
-                  <img id="gambar-1" src="{{asset('admin_asset/template/images/dashboard/gambar1.png')}}" alt="people">
-
-                </div>
-              </div>
+          <div class="container">
+            <div class="row">
+                <div class="table-responsive">
+  <table class="table align-middle">
+    <thead>
+      <tr>
+      <th>Image</th>
+            <th>Title</th>
+            <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        ...
+      </tr>
+      <tr class="align-bottom">
+        ...
+      </tr>
+      <tr>
+        <td>...</td>
+        <td>...</td>
+        <td class="align-top">This cell is aligned to the top.</td>
+        <td>...</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
             </div>
-            <div class="col-md-6 grid-margin transparent">
+          </div>
+            <!-- <div class="col-md-6 grid-margin transparent">
               <div class="row">
                 <div class="col-md-6 mb-4 stretch-card transparent">
                 <div class="card" style= "background-color: #0D4A31; color: white;">
@@ -269,8 +286,8 @@
                 </div>
               </div>
             </div>
-          </div>
-          <div class="row">
+          </div> -->
+          <!-- <div class="row">
             <div class="col-md-6 grid-margin stretch-card">
               <div class="card">
               <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
@@ -303,7 +320,7 @@
             </div>
             </div>
           </div>
-          <!-- <div class="row">
+          <div class="row">
             <div class="col-md-12 grid-margin stretch-card">
               <div class="card position-relative">
                 <div class="card-body">
@@ -483,13 +500,31 @@
               </div>
             </div>
           </div> -->
-          <!-- <div class="row">
-            <div class="col-md-7 grid-margin stretch-card">
+          <div class="row">
+            <div class="col-md-7 grid-margin stretch-car">
               <div class="card">
                 <div class="card-body">
-                  <p class="card-title mb-0">Top Products</p>
-                  <div class="table-responsive">
+                  <p class="card-title mb-0">Tambah Data</p>
+
+                  <form action="{{ route('upload.proses') }}" method="POST" enctype="multipart/form-data">
+            {{ csrf_field() }}
+
+                    <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Judul</label>
+                    <input type="text" class="form-control" id="nama_wisata" placeholder="Masukan Nama Wisata" name="nama_wisata" autofocus required>
+                    </div>
+                    <div class="mb-3">
+                    <label for="formFile" class="form-label">Upload Gambar</label>
+                    <input class="form-control" type="file" id="gambar" name="gambar"required>
+                    </div>
+                    <div class="mb-3">
+                    <label for="deskripsi" class="form-label">Deskripsi</label>
+                    <textarea class="form-control" id="deskripsi" rows="3" name="deskripsi" required></textarea>
+                </div>
+                    <a href="#" class="btn mt-5" id="btn-detail">Tambah Event</a>
+                  <!-- <div class="table-responsive">
                     <table class="table table-striped table-borderless">
+                    
                       <thead>
                         <tr>
                           <th>Product</th>
@@ -543,14 +578,14 @@
                         </tr>
                       </tbody>
                     </table>
-                  </div>
+                  </div> -->
                 </div>
               </div>
             </div>
-            <div class="col-md-5 grid-margin stretch-card">
+            <!-- <div class="col-md-5 grid-margin stretch-card">
 							<div class="card">
 								<div class="card-body">
-									<h4 class="card-title">To Do Lists</h4>
+									<h4 class="card-title"></h4>
 									<div class="list-wrapper pt-2">
 										<ul class="d-flex flex-column-reverse todo-list todo-list-custom">
 											<li>
@@ -606,8 +641,8 @@
 									</div>
 								</div>
 							</div>
-            </div>
-          </div> -->
+            </div> -->
+          </div>
           <!-- <div class="row">
             <div class="col-md-4 stretch-card grid-margin">
               <div class="card">
@@ -807,8 +842,8 @@
                   </div>
                 </div>
               </div>
-            </div> -->
-        </div>
+            </div>
+        </div> -->
         <!-- content-wrapper ends -->
         <!-- partial:partials/_footer.html -->
         <footer class="footer">
@@ -834,6 +869,4 @@
   @include('include.scripct')
  
 </body>
-
 </html>
-
